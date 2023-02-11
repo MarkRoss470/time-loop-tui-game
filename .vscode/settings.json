@@ -1,8 +1,14 @@
 {
     "cSpell.words": [
+        "color",
         "fract",
+        "ilog",
         "libc",
+        "termion",
         "timeval",
         "usec"
-    ]
+    ],
+    "lldb.showDisassembly": "never",
+    "lldb.dereferencePointers": true,
+    "lldb.consoleMode": "commands"
 }

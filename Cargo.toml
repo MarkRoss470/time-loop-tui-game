@@ -3,8 +3,8 @@ name = "rust-text-game"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-nix = "0.26.2"
-raw_tty = "0.1.0"
+[target.'cfg(unix)'.dependencies]
+termion = "*" # For controlling the terminal
+unicode-segmentation = "*" # For splitting text into graphemes
+unicode-width = "*" # For getting the width of characters
+nix = "*" # For the unix select syscall
