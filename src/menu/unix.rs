@@ -1,3 +1,5 @@
+#![allow(clippy::wildcard_imports)]
+
 use std::io::{Read, StdinLock, Write, Stdout, BufWriter};
 use std::os::fd::AsRawFd;
 use std::time::Duration;
