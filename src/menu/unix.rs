@@ -6,7 +6,7 @@ use nix::libc::timeval;
 use nix::sys::select::{FdSet, select};
 use nix::sys::time::TimeVal;
 
-use termion::{terminal_size};
+use termion::{terminal_size, cursor};
 use termion::raw::{RawTerminal, IntoRawMode};
 use termion::screen::{IntoAlternateScreen, AlternateScreen};
 
@@ -96,16 +96,29 @@ fn get_size_checked() -> Result<(u16, u16), TuiError> {
 
 impl Tui {
     /// Constructs a new Tui with a new lock to stdout
-    pub(super) fn new() -> Self {
-        let stdout = std::io::stdout()
+    pub(super) fn new() -> Result<Self, std::io::Error> {
+        let mut stdout = std::io::stdout()
             .into_raw_mode().unwrap()
             .into_alternate_screen().unwrap();
-        
+
+        // Hide the cursor
+        write!(stdout, "{}", cursor::Hide)?;
+
         let stdout = BufWriter::new(stdout);
 
-        Self {
+        Ok(Self {
             stdout,
-        }
+        })
+    }
+}
+
+impl Drop for Tui {
+    fn drop(&mut self) {
+        // Can't return a Result from drop, so unwrap Result values
+
+        // Show the cursor
+        write!(self.stdout, "{}", cursor::Show).unwrap();
+        self.stdout.flush().unwrap();
     }
 }
 

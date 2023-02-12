@@ -45,7 +45,7 @@ impl Tui {
     /// * selected: which item in the list is selected
     /// 
     /// ### Panics
-    /// * If the terminal is too small, based on if [`get_size_checked`][Tui::get_size_checked] fails
+    /// * If the terminal is too small, based on if [`get_size_checked`] fails
     fn render_list(&mut self, items: &[&str], scroll: &mut usize, selected: usize) -> Result<(), Error> {
         let num_items = items.len();
 
@@ -142,16 +142,13 @@ impl Tui {
         // Print bottom right corner
         write!(self.stdout, "{BOTTOM_RIGHT_CORNER}")?;
 
-        // Hide the cursor
-        write!(self.stdout, "{}", cursor::Hide)?;
-
         Ok(())
     }
 
     /// Renders a line of text, centred between [`LEFT_OFFSET`] and [`RIGHT_OFFSET`]. Will be cut off with an ellipsis if too long.
     /// 
     /// ### Panics
-    /// * If the terminal is too small, based on if [`get_size_checked`][Tui::get_size_checked] fails
+    /// * If the terminal is too small, based on if [`get_size_checked`] fails
     pub(super) fn render_text_centred(&mut self, text: &str, line: u16) -> Result<(), Error> {
         let (w, _) = get_size_checked().unwrap();
         let max_width = w - LEFT_OFFSET - RIGHT_OFFSET;
@@ -237,7 +234,7 @@ impl Tui {
     /// * layout: a reference to cache the generated [`TextLayout`]
     /// 
     /// ### Panics:
-    /// * If the terminal is too small, based on if [`get_size_checked`][Tui::get_size_checked] fails
+    /// * If the terminal is too small, based on if [`get_size_checked`] fails
     pub(super) fn render_graphemes_from_str<'a: 'b, 'b>(&mut self, text: &'a str, graphemes: usize, layout: &'b mut TextLayout<'a>) -> Result<(), Error> {
         // Get the size of the terminal
         let (w, h) = get_size_checked().unwrap();

@@ -1,11 +1,33 @@
+//! A module controlling IO. IO operations should be conducted via the [Menu] trait.
+//! The [init] function will provide a value which implements this trait on the current platform.
+//! On unix platforms, a TUI interface will be shown, while on other platforms a less advanced fallback implementation will be used.
+//! 
+//! ```rust
+//! let mut menu = menu::init().unwrap();
+//!
+//! let options = [
+//!     "An option".to_string(),
+//!     "Another option".to_string(),
+//!     "A third option".to_string(),
+//! ];
+//!
+//! let option_list = OptionList::new(&options, "Select an option");
+//! let user_choice = menu.show_option_list(option_list);    
+//!
+//! let screen = Screen {
+//!     title: "The result",
+//!     content: &format!("You picked '{}'", options[user_choice]),
+//! };
+//!
+//! menu.show_screen(screen);
+//! ```
+
+
 /// The list of options for a user to choose from
 pub struct OptionList<'a> {
+    /// A list of options for the player to choose from
     pub options: &'a [String],
     pub prompt: &'a str,
-
-    /// This private member prevents code outside this module from using member initialisation.
-    /// This forces code to use the provided [`new`][OptionList::new] method, which does validation on `options`
-    _private: ()
 }
 
 impl<'a> OptionList<'a> {
@@ -19,12 +41,11 @@ impl<'a> OptionList<'a> {
         Self {
             options,
             prompt,
-
-            _private: ()
         }
     }
 }
 
+/// A screen of text that can be shown to the user
 pub struct Screen<'a> {
     pub title: &'a str,
     pub content: &'a str,
@@ -32,7 +53,6 @@ pub struct Screen<'a> {
 
 /// An error which can occur while displaying a menu. Some variants will only occur on specific platforms.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum Error {
     Io(std::io::Error),
     IncompatibleCharacter,
@@ -87,6 +107,6 @@ mod fallback;
 #[cfg(not(unix))]
 use fallback::Tui;
 
-pub fn init() -> impl Menu {
+pub fn init() -> Result<impl Menu, std::io::Error> {
     Tui::new()
 }
