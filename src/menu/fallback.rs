@@ -6,7 +6,7 @@ use super::{Menu, Error, OptionList};
 pub struct Tui;
 
 impl Tui {
-    pub(super) fn new() -> Self {Self}
+    pub(super) fn new() -> Result<Self, std::io::Error> {Ok(Self)}
 }
 
 

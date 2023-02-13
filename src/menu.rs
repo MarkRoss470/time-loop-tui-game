@@ -95,15 +95,15 @@ pub trait Menu {
 }
 
 /// Implementation of the [Menu] trait for unix platforms using the [termion] library
-#[cfg(unix)]
+#[cfg(all(unix, not(debug_assertions)))]
 mod unix;
-#[cfg(unix)]
+#[cfg(all(unix, not(debug_assertions)))]
 use unix::Tui;
 
 /// Fallback implementation of the [Menu] trait for platforms which don't support ANSI escape codes
-#[cfg(not(unix))]
+#[cfg(any(not(unix), debug_assertions))]
 mod fallback;
-#[cfg(not(unix))]
+#[cfg(any(not(unix), debug_assertions))]
 use fallback::Tui;
 
 pub fn init() -> Result<impl Menu, std::io::Error> {
