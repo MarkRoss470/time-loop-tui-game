@@ -1,4 +1,4 @@
-use std::iter;
+use std::{iter, io::StdoutLock};
 use std::io::Write;
 
 use super::{Menu, Error, OptionList};
@@ -12,6 +12,8 @@ impl Tui {
 
 impl Menu for Tui {
     fn try_show_option_list_cancellable(&mut self, list: OptionList) -> Result<Option<usize>, Error> {
+        let mut stdout = std::io::stdout().lock();
+
         let num_options = list.options.len() + 1;
         let max_width = num_options.to_string().len();
 
@@ -22,13 +24,16 @@ impl Menu for Tui {
             .map(|(i, s)|format!("{: >max_width$}) {}\n", i + 1, s)) // Convert each item to a string with numbers right aligned
             .collect();
 
-        println!("{}", list.prompt);
-        println!("{options_text}");
-        println!();
+        writeln!(stdout, "{}", list.prompt)?;
+        writeln!(stdout, "{options_text}")?;
+        
+        let choice = number_input(num_options, &mut stdout)?;
 
-        match number_input(num_options)? {
+        writeln!(stdout)?;
+
+        match choice {
             u if u == num_options => Ok(None),
-            u => Ok(Some(u)) 
+            u => Ok(Some(u - 1)) 
         }
     }
 
@@ -46,9 +51,13 @@ impl Menu for Tui {
 
         writeln!(stdout, "{}", list.prompt)?;
         writeln!(stdout, "{options_text}")?;
-        writeln!(stdout)?;
         
-        number_input(num_options).map(|i|i - 1)
+        let choice = number_input(num_options, &mut stdout)?;
+
+        writeln!(stdout)?;
+
+        // Input is 1-based but return value is 0-based, so subtract 1 
+        Ok(choice - 1)
     }
 
     fn try_show_screen(&mut self, screen: super::Screen) -> Result<(), Error> {
@@ -56,15 +65,16 @@ impl Menu for Tui {
         
         writeln!(stdout, "{}", screen.title)?;
         writeln!(stdout, "{}", screen.content)?;
+        writeln!(stdout)?;
 
         Ok(())
     }
 }
 
-fn number_input(max: usize) -> Result<usize, Error> {
+fn number_input(max: usize, stdout: &mut StdoutLock) -> Result<usize, Error> {
     loop {
-        print!("Enter your selection from 1 to {max}: ");
-        std::io::stdout().flush()?;
+        write!(stdout, "Enter your selection from 1 to {max}: ")?;
+        stdout.flush()?;
 
         let mut buf = String::new();
         std::io::stdin().read_line(&mut buf)?;
@@ -72,11 +82,11 @@ fn number_input(max: usize) -> Result<usize, Error> {
         let selection = buf.trim_end();
         match selection.parse() {
             Ok(u) => match u {
-                0 => println!("Value can't be 0"),
+                0 => writeln!(stdout, "Value can't be 0")?,
                 u if u <= max => return Ok(u),
-                _ => println!("Value too large")
+                _ => writeln!(stdout, "Value too large")?
             },
-            Err(_) => println!("Not a valid integer")
+            Err(_) => writeln!(stdout, "Not a valid integer")?
         }
 
     }
