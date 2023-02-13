@@ -82,7 +82,8 @@ pub trait Menu {
     fn try_show_option_list(&mut self, list: OptionList) -> Result<usize, Error>;
 
     /// Show a list of options, with a cancel option. Returns [`None`] if the user selects cancel, 
-    /// or a [`Some`] value containing the index of the option the user selected
+    /// or a [`Some`] value containing the 0-based index of the option the user selected
+    /// (for instance if the user selects the first option in the list the return value will be 0)
     fn show_option_list_cancellable(&mut self, list: OptionList) -> Option<usize>{self.try_show_option_list_cancellable(list).unwrap()}
     /// Fallible version of [`show_option_list_cancellable`][Menu::show_option_list_cancellable]
     fn try_show_option_list_cancellable(&mut self, list: OptionList) -> Result<Option<usize>, Error>;

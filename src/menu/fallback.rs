@@ -48,7 +48,7 @@ impl Menu for Tui {
         writeln!(stdout, "{options_text}")?;
         writeln!(stdout)?;
         
-        number_input(num_options)
+        number_input(num_options).map(|i|i - 1)
     }
 
     fn try_show_screen(&mut self, screen: super::Screen) -> Result<(), Error> {
