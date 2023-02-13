@@ -27,6 +27,8 @@ impl<'a> TextLayout<'a> {
         let mut current_render_line_start = 0;
         // Points past the end of the last char in the current render line
         let mut current_render_line_end = 0;
+        // Whether the current word is at the first word on a new line
+        let mut is_line_start = true;
 
         for word in line.split(' ') {
             // The display width of the word
@@ -36,8 +38,9 @@ impl<'a> TextLayout<'a> {
             if x + width <= self.max_width {
                 // At the start of the line, current_render_line_end points to the first letter, where usually it would point to the first space
                 // In this situation, don't add the width of the space
-                if current_render_line_end == current_render_line_start {
+                if is_line_start {
                     current_render_line_end += word.len();
+                    is_line_start = false;
                 } else {
                     // + 1 to account for the space between the words
                     current_render_line_end += word.len() + 1;
@@ -47,6 +50,8 @@ impl<'a> TextLayout<'a> {
                 x += width + 1;
                 continue;
             }
+
+
 
             // The remaining width on the current line
             let width_left = self.max_width - (x - 1);
@@ -84,6 +89,7 @@ impl<'a> TextLayout<'a> {
                     current_render_line_end += 1;
                     current_render_line_start = current_render_line_end;
                     x = 0;
+                    is_line_start = true;
 
                     word_start_index = current_render_line_end;
                 } else {
