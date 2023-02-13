@@ -22,7 +22,6 @@
 //! menu.show_screen(screen);
 //! ```
 
-
 /// The list of options for a user to choose from
 pub struct OptionList<'a> {
     /// A list of options for the player to choose from
