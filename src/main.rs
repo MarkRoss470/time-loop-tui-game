@@ -6,6 +6,8 @@
 mod menu;
 mod player;
 mod rooms;
+mod items;
+mod config;
 
 use player::init_player;
 

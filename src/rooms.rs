@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::items::{Item, Weapon, Food};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Room {
     Bridge,
@@ -31,8 +33,7 @@ impl Room {
 #[derive(Debug)]
 pub struct RoomState {
     pub room: Room,
-    // items: HashSet<Item>,
-
+    pub items: Vec<Item>,
     pub connections: Vec<Room>
 }
 
@@ -54,21 +55,33 @@ impl RoomGraph {
 pub fn init_rooms() -> RoomGraph {
     let bridge = RoomState {
         room: Room::Bridge,
+        items: vec![Item::Weapon(Weapon {
+            name: "Captain's blaster",
+            description: "An energy weapon which the captain keeps by his command chair in case of emergency",
+            damage: 5,
+        })],
         connections: vec![Room::UpperCorridor],
     };
 
     let upper_corridor = RoomState {
         room: Room::UpperCorridor,
+        items: Vec::new(),
         connections: vec![Room::Bridge, Room::MessHall],
     };
 
     let mess_hall = RoomState {
         room: Room::MessHall,
+        items: Vec::new(),
         connections: vec![Room::UpperCorridor, Room::Kitchen]
     };
 
     let kitchen = RoomState {
         room: Room::Kitchen,
+        items: vec![Item::Food(Food {
+            name: "Bread roll",
+            description: "A soft white bread roll. It's tasty, but not substantial.",
+            heals_for: 5
+        })],
         connections: vec![Room::MessHall]
     };
 
