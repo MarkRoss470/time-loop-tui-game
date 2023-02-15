@@ -52,6 +52,7 @@ pub struct Screen<'a> {
 
 /// An error which can occur while displaying a menu. Some variants will only occur on specific platforms.
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum Error {
     Io(std::io::Error),
     IncompatibleCharacter,
@@ -75,7 +76,10 @@ impl From<std::io::Error> for Error {
 }
 
 /// A trait for displaying menus to the user
-pub trait Menu {
+pub trait Menu: Sized {
+    /// Creates a new instance of the object
+    fn new() -> Result<Self, std::io::Error>;
+    
     /// Show a list of options. Will return the index of the option the user selected
     fn show_option_list(&mut self, list: OptionList) -> usize {self.try_show_option_list(list).unwrap()}
     /// Fallible version of [`show_option_list`][Menu::show_option_list]

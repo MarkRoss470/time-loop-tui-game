@@ -5,12 +5,11 @@ use super::{Menu, Error, OptionList};
 
 pub struct Tui;
 
-impl Tui {
-    pub(super) fn new() -> Result<Self, std::io::Error> {Ok(Self)}
-}
-
-
 impl Menu for Tui {
+    fn new() -> Result<Self, std::io::Error> {
+        Ok(Self)
+    }
+
     fn try_show_option_list_cancellable(&mut self, list: OptionList) -> Result<Option<usize>, Error> {
         let mut stdout = std::io::stdout().lock();
 
@@ -69,6 +68,8 @@ impl Menu for Tui {
 
         Ok(())
     }
+
+
 }
 
 fn number_input(max: usize, stdout: &mut StdoutLock) -> Result<usize, Error> {

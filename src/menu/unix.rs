@@ -1,5 +1,3 @@
-#![allow(clippy::wildcard_imports)]
-
 use std::io::{Read, StdinLock, Write, Stdout, BufWriter};
 use std::os::fd::AsRawFd;
 use std::time::Duration;
@@ -96,9 +94,18 @@ fn get_size_checked() -> Result<(u16, u16), TuiError> {
     }
 }
 
-impl Tui {
-    /// Constructs a new Tui with a new lock to stdout
-    pub(super) fn new() -> Result<Self, std::io::Error> {
+impl Drop for Tui {
+    fn drop(&mut self) {
+        // Can't return a Result from drop, so unwrap Result values
+
+        // Show the cursor
+        write!(self.stdout, "{}", cursor::Show).unwrap();
+        self.stdout.flush().unwrap();
+    }
+}
+
+impl Menu for Tui {
+    fn new() -> Result<Self, std::io::Error> {
         let mut stdout = std::io::stdout()
             .into_raw_mode().unwrap()
             .into_alternate_screen().unwrap();
@@ -112,19 +119,7 @@ impl Tui {
             stdout,
         })
     }
-}
 
-impl Drop for Tui {
-    fn drop(&mut self) {
-        // Can't return a Result from drop, so unwrap Result values
-
-        // Show the cursor
-        write!(self.stdout, "{}", cursor::Show).unwrap();
-        self.stdout.flush().unwrap();
-    }
-}
-
-impl Menu for Tui {
     fn try_show_option_list(&mut self, list: OptionList<'_>) -> Result<usize, Error> {
         // Get options from list with numbers
         let items: Vec<_> = list.options.iter()
