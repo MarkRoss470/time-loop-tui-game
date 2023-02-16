@@ -62,7 +62,7 @@ impl Player {
         let mut options = vec![PassiveAction::CheckState];
         let mut options_str = vec!["Check how you're doing".to_string()];
 
-        let room_state = self.room_graph.get_state(self.room);
+        let room_state = self.get_room_state();
 
         for connection in &room_state.connections {
             options.push(PassiveAction::GoToRoom(*connection));
@@ -134,7 +134,7 @@ impl Player {
 
     /// Removes an [`Item`] from the current [`RoomState`] at the specified index and adds it to the [player's inventory][Player::inventory]
     fn pick_up_item_from_room(&mut self, i: usize) {
-        let room_state = self.room_graph.get_state_mut(self.room);
+        let room_state = self.get_room_state_mut();
         let item = room_state.items.remove(i);
         self.pick_up_item(item);
     }
