@@ -2,9 +2,10 @@
 
 use crate::combat::{Health, self};
 use crate::items::Item;
-use crate::config;
+use crate::config::{self, STARTING_ROOM};
 use crate::menu::{Menu, Screen, OptionList};
-use crate::rooms::{Room, RoomGraph, init, RoomState};
+use crate::rooms::{Room, RoomGraph, RoomState};
+use crate::map;
 
 /// The state of the player
 #[derive(Debug)]
@@ -221,12 +222,12 @@ impl Player {
     /// Initialise a new [`Player`]
     pub fn init() -> Self {
         Self {
-            room: Room::Bridge,
+            room: STARTING_ROOM,
             inventory: Vec::new(),
             health: config::PLAYER_START_HEALTH,
             max_health: config::PLAYER_START_MAX_HEALTH,
 
-            room_graph: init(),
+            room_graph: map::init(),
         }
     }
 }
