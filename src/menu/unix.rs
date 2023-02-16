@@ -26,7 +26,7 @@ const ANSI_UP: &str = "\x1b[A";
 /// The ANSI escape to move the cursor 1 line down
 const ANSI_DOWN: &str = "\x1b[B";
 
-/// The struct which implements [Menu] for unix platforms.\
+/// The struct which implements [`Menu`] for unix platforms.\
 /// Holds a lock to stdout, so nothing else should be able to write to the console while this struct exists.
 pub struct Tui {
     /// A lock to stdout.

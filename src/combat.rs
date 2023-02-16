@@ -89,7 +89,7 @@ impl Enemy {
         s.finish()
     }
 
-    /// Determine what action the [Enemy] will take this turn
+    /// Determine what action the [`Enemy`] will take this turn
     fn choose_combat_action(&mut self, turn_number: usize) -> Action {
         // If enemy is at less than half health and has food, then eat it
         if self.health.as_usize() * 2 <= self.max_health.as_usize() {

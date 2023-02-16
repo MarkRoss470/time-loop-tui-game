@@ -145,7 +145,7 @@ impl Player {
         self.inventory.push(item);
     }
 
-    /// Chose a [combat action][combat::Action] to perform
+    /// Get the user to choose a [combat action][combat::Action] to perform
     pub fn choose_combat_action(&self, menu: &mut impl Menu) -> combat::Action {
         // Init lists of options and their string representations
         let mut options = vec![

@@ -1,5 +1,5 @@
-//! A module controlling IO. IO operations should be conducted via the [Menu] trait.
-//! The [init] function will provide a value which implements this trait on the current platform.
+//! A module controlling IO. IO operations should be conducted via the [`Menu`] trait.
+//! The [`init`] function will provide a value which implements this trait on the current platform.
 //! On unix platforms, a TUI interface will be shown, while on other platforms a less advanced fallback implementation will be used.
 //! 
 //! ```rust
@@ -104,19 +104,19 @@ pub trait Menu: Sized {
 
 }
 
-/// Implementation of the [Menu] trait for unix platforms using the [termion] library
+/// Implementation of the [`Menu`] trait for unix platforms using the [`termion`] library
 //#[cfg(all(unix, not(debug_assertions)))]
 mod unix;
 #[cfg(all(unix, not(debug_assertions)))]
 use unix::Tui;
 
-/// Fallback implementation of the [Menu] trait for platforms which don't support ANSI escape codes
+/// Fallback implementation of the [`Menu`] trait for platforms which don't support ANSI escape codes
 #[cfg(any(not(unix), debug_assertions))]
 mod fallback;
 #[cfg(any(not(unix), debug_assertions))]
 use fallback::Tui;
 
-/// Initialises and returns a type which implements [Menu] for the current platform
+/// Initialises and returns a type which implements [`Menu`] for the current platform
 pub fn init() -> Result<impl Menu, std::io::Error> {
     Tui::new()
 }

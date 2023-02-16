@@ -19,7 +19,7 @@ pub(super) struct TextLine<'a> {
 /// The formatted layout some text
 #[derive(Debug)]
 pub(super) struct TextLayout<'a> {
-    /// The maximum length of a line. This is measured in columns using [unicode_width::UnicodeWidthStr], not in characters or graphemes.
+    /// The maximum length of a line. This is measured in columns using [`unicode_width::UnicodeWidthStr`], not in characters or graphemes.
     pub(super) max_width: usize,
     /// The formatted lines
     pub(super) lines: Vec<TextLine<'a>>,
