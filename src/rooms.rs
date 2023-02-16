@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::items::{Item, Weapon, Food};
+use crate::{items::{Item, Weapon, Food}, combat::{Enemy, Damage, Health}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Room {
@@ -11,21 +11,21 @@ pub enum Room {
 }
 
 impl Room {
-    pub fn get_name(&self) -> &'static str {
+    pub const fn get_name(self) -> &'static str {
         match self {
-            Room::Bridge => "Bridge",
-            Room::UpperCorridor => "Upper Corridor",
-            Room::MessHall => "Mess Hall",
-            Room::Kitchen => "Kitchen"
+            Self::Bridge => "Bridge",
+            Self::UpperCorridor => "Upper Corridor",
+            Self::MessHall => "Mess Hall",
+            Self::Kitchen => "Kitchen"
         }
     }
 
-    pub fn get_description(&self) -> &'static str {
+    pub const fn get_description(self) -> &'static str {
         match self {
-            Room::Bridge => "The control centre of the ship. Through the front window you can see into the darkness of space.",
-            Room::UpperCorridor => "A corridor connecting the bridge to the rest of the ship.",
-            Room::MessHall => "Where the crew eat their meals. A holo-screen in the corner is playing a game of half-G volleyball.",
-            Room::Kitchen => "An immaculately clean kitchen area. All the appliances are electric - no open flames are allowed on the ship."
+            Self::Bridge => "The control centre of the ship. Through the front window you can see into the darkness of space.",
+            Self::UpperCorridor => "A corridor connecting the bridge to the rest of the ship.",
+            Self::MessHall => "Where the crew eat their meals. A holo-screen in the corner is playing a game of half-G volleyball.",
+            Self::Kitchen => "An immaculately clean kitchen area. All the appliances are electric - no open flames are allowed on the ship."
         }
     }
 }
@@ -34,6 +34,7 @@ impl Room {
 pub struct RoomState {
     pub room: Room,
     pub items: Vec<Item>,
+    pub enemy: Option<Enemy>,
     pub connections: Vec<Room>
 }
 
@@ -43,35 +44,55 @@ pub struct RoomGraph {
 }
 
 impl RoomGraph {
-    pub fn get_state<'a>(&'a self, room: Room) -> &'a RoomState {
+    pub fn get_state(&self, room: Room) -> &RoomState {
         self.rooms.get(&room).unwrap()
     }
 
-    pub fn get_state_mut<'a>(&'a mut self, room: Room) -> &'a mut RoomState {
+    pub fn get_state_mut(&mut self, room: Room) -> &mut RoomState {
         self.rooms.get_mut(&room).unwrap()
     }
 }
 
-pub fn init_rooms() -> RoomGraph {
+pub fn init() -> RoomGraph {
     let bridge = RoomState {
         room: Room::Bridge,
         items: vec![Item::Weapon(Weapon {
             name: "Captain's blaster",
             description: "An energy weapon which the captain keeps by his command chair in case of emergency",
-            damage: 5,
+
+            straight_damage: Damage::new(5),
+            dodge_damage: Damage::new(5),
+            speed: 2
         })],
+        enemy: None,
         connections: vec![Room::UpperCorridor],
     };
 
     let upper_corridor = RoomState {
         room: Room::UpperCorridor,
         items: Vec::new(),
+        enemy: None,
         connections: vec![Room::Bridge, Room::MessHall],
     };
 
     let mess_hall = RoomState {
         room: Room::MessHall,
         items: Vec::new(),
+        enemy: Some(Enemy {
+            name: "Placeholder enemy",
+            description: "I just want to see if the logic works",
+            inventory: vec![Item::Weapon(Weapon {
+                name: "Placeholder weapon",
+                description: "Just testing",
+
+                straight_damage: Damage::new(10),
+                dodge_damage: Damage::new(5),
+                speed: 5
+            })],
+
+            health: Health::new(10),
+            max_health: Health::new(10)
+        }),
         connections: vec![Room::UpperCorridor, Room::Kitchen]
     };
 
@@ -80,8 +101,9 @@ pub fn init_rooms() -> RoomGraph {
         items: vec![Item::Food(Food {
             name: "Bread roll",
             description: "A soft white bread roll. It's tasty, but not substantial.",
-            heals_for: 5
+            heals_for: Damage::new(5)
         })],
+        enemy: None,
         connections: vec![Room::MessHall]
     };
 
