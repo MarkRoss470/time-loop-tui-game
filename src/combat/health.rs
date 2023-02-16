@@ -38,8 +38,8 @@ impl Health {
 
 impl Damage {
     /// Creates a new [`Damage`] from a change in HP
-    pub const fn new(health: usize) -> Self {
-        Self(health)
+    pub const fn new(damage: usize) -> Self {
+        Self(damage)
     }
 }
 
