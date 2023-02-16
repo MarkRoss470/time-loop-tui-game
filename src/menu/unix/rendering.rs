@@ -1,3 +1,5 @@
+//! Methods responsible for writing output to the tty
+
 use std::io::{Write, stdin};
 use std::time::Duration;
 

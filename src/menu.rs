@@ -26,6 +26,7 @@
 pub struct OptionList<'a> {
     /// A list of options for the player to choose from
     pub options: &'a [String],
+    /// A command to show the user
     pub prompt: &'a str,
 }
 
@@ -46,7 +47,9 @@ impl<'a> OptionList<'a> {
 
 /// A screen of text that can be shown to the user
 pub struct Screen<'a> {
+    /// The title of the screen
     pub title: &'a str,
+    /// The text to display
     pub content: &'a str,
 }
 
@@ -54,7 +57,9 @@ pub struct Screen<'a> {
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum Error {
+    /// An IO error
     Io(std::io::Error),
+    /// A character was encountered which is not supported
     IncompatibleCharacter,
 }
 
@@ -100,7 +105,7 @@ pub trait Menu: Sized {
 }
 
 /// Implementation of the [Menu] trait for unix platforms using the [termion] library
-#[cfg(all(unix, not(debug_assertions)))]
+//#[cfg(all(unix, not(debug_assertions)))]
 mod unix;
 #[cfg(all(unix, not(debug_assertions)))]
 use unix::Tui;
@@ -111,6 +116,7 @@ mod fallback;
 #[cfg(any(not(unix), debug_assertions))]
 use fallback::Tui;
 
+/// Initialises and returns a type which implements [Menu] for the current platform
 pub fn init() -> Result<impl Menu, std::io::Error> {
     Tui::new()
 }

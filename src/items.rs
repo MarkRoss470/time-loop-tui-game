@@ -1,5 +1,8 @@
+//! Functionality related to items
+
 use crate::combat::Damage;
 
+/// A food item which heals the player when used
 #[derive(Debug, Hash)]
 pub struct Food {
     /// The name of the food
@@ -10,6 +13,7 @@ pub struct Food {
     pub heals_for: Damage,
 }
 
+/// A weapon which can be used in a battle
 #[derive(Debug, Hash)]
 pub struct Weapon {
     /// The name of the weapon
@@ -25,9 +29,12 @@ pub struct Weapon {
     pub speed: usize,
 }
 
+/// An item which can be stored in the [player][crate::player::Player]'s or an [enemy][crate::combat::Enemy]'s inventory
 #[derive(Debug, Hash)]
 pub enum Item {
+    /// A food item
     Food(Food),
+    /// A weapon
     Weapon(Weapon)
 }
 

@@ -1,3 +1,5 @@
+//! Configuration constants for the TUI menu
+
 /// The pattern which is shown at the top of the screen
 pub(super) const BORDER_PATTERN_HORIZONTAL: &str = "=-";
 /// The pattern which is shown at the bottom of the screen
@@ -26,8 +28,10 @@ pub(super) const TEXT_WRAPPING_MIN_SEGMENT_SIZE: usize = 5;
 
 /// The target framerate
 pub(super) const FPS: u64 = 30;
+/// The number of milliseconds per frame based on [`FPS`]
 pub(super) const MS_PER_FRAME: u64 = 1000 / FPS;
 
 /// The target number of characters to print per second when scrolling text
 pub(super) const CHARS_PER_SECOND: u64 = 50;
+/// The number of milliseconds between characters based on [`CHARS_PER_SECOND`]
 pub(super) const MS_PER_CHAR: u64 = 1000 / CHARS_PER_SECOND;

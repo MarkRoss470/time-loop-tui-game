@@ -1,19 +1,27 @@
+//! Contains functionality for splitting text over multiple lines
+
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
 use super::consts::*;
 
+/// One line of text in the formatted output
 #[derive(Debug)]
 pub(super) struct TextLine<'a> {
+    /// The line's content
     pub(super) content: &'a str,
+    /// Whether the line's content cuts off in the middle of a word and a dash should be rendered
     pub(super) dash_at_end: bool,
     /// Length measured in graphemes
     pub(super) length: usize,
 }
 
+/// The formatted layout some text
 #[derive(Debug)]
 pub(super) struct TextLayout<'a> {
+    /// The maximum length of a line. This is measured in columns using [unicode_width::UnicodeWidthStr], not in characters or graphemes.
     pub(super) max_width: usize,
+    /// The formatted lines
     pub(super) lines: Vec<TextLine<'a>>,
 }
 

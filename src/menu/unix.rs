@@ -21,18 +21,23 @@ mod rendering;
 use consts::*;
 use text_layout::*;
 
+/// The ANSI escape to move the cursor 1 line up
 const ANSI_UP: &str = "\x1b[A";
+/// The ANSI escape to move the cursor 1 line down
 const ANSI_DOWN: &str = "\x1b[B";
 
 /// The struct which implements [Menu] for unix platforms.\
 /// Holds a lock to stdout, so nothing else should be able to write to the console while this struct exists.
 pub struct Tui {
+    /// A lock to stdout.
+    /// A [`BufWriter`] is used to prevent flickering, as the output will only be written once per frame.
     stdout: BufWriter<AlternateScreen<RawTerminal<Stdout>>>,
 }
 
 /// A unix specific error which can occur while showing a menu
 #[derive(Debug)]
 enum TuiError {
+    /// An [`Error`] which should be handled. 
     MenuError(Error),
     /// If the terminal is too small to fit the content
     TerminalTooSmall,

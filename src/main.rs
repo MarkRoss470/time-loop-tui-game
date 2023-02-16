@@ -1,5 +1,5 @@
 #![warn(
-    //clippy::missing_docs_in_private_items,
+    clippy::missing_docs_in_private_items,
     missing_debug_implementations,
     clippy::all,
     clippy::pedantic,

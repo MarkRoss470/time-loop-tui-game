@@ -3,6 +3,7 @@ use std::io::Write;
 
 use super::{Menu, Error, OptionList};
 
+/// A struct which implements [`Menu`] for any platform
 pub struct Tui;
 
 impl Menu for Tui {
@@ -72,6 +73,7 @@ impl Menu for Tui {
 
 }
 
+/// Gets an integer input from the user from 1 to a maximum value (inclusive). Will get the user to retype their input until a valid value is entered.
 fn number_input(max: usize, stdout: &mut StdoutLock) -> Result<usize, Error> {
     loop {
         write!(stdout, "Enter your selection from 1 to {max}: ")?;
