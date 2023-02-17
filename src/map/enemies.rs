@@ -33,7 +33,7 @@ At the moment they're checking the ship's comms, while listening to music throug
 pub(super) fn skipper() -> Enemy {
     Enemy {
         name: "Skipper",
-        description: "The ship's captain. A veteran of the 2143-2152 inter-system war, they have great experience in combat. On the other hand, they're very good at forgetting things.",
+        description: "The ship's captain. Having served in the 2143-2152 inter-system war, they have great experience in combat. On the other hand, they're very good at forgetting things.",
         inventory: vec![],
 
         health: Health::new(15),
