@@ -106,11 +106,7 @@ impl Drop for Tui {
 
 impl Menu for Tui {
     fn new() -> Result<Self, std::io::Error> {
-        let mut stdout = std::io::stdout()
-            .into_raw_mode()
-            .unwrap()
-            .into_alternate_screen()
-            .unwrap();
+        let mut stdout = std::io::stdout().into_raw_mode()?.into_alternate_screen()?;
 
         // Hide the cursor
         write!(stdout, "{}", cursor::Hide)?;
