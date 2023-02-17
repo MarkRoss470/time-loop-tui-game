@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::{items::Item, combat::Enemy};
+use crate::{combat::Enemy, items::Item};
 
 /// One of the game's rooms.
 /// This does not store the room's state, and is only an identifier.
@@ -23,7 +23,7 @@ pub enum Room {
     Kitchen,
     /// The stairwell connecting the two floors
     Stairwell,
-    
+
     /// The crew area
     CrewArea,
     /// The store room
@@ -40,7 +40,7 @@ pub enum Room {
     /// The escape craft
     EscapeCraft,
     /// The room which triggers winning the game
-    Escape
+    Escape,
 }
 
 impl Room {
@@ -72,16 +72,16 @@ impl Room {
         match self {
             Self::Bridge => "The control centre of the ship. Through the front window you can see into the darkness of space.",
             Self::UpperCorridor => "A corridor connecting the bridge to the rest of the ship.",
-            Self::StrategyRoom => "Where important tactical decisions are made. Before you arrived, the most important decision in a month had been what galactic time zone to use.",
+            Self::StrategyRoom => "Where important tactical decisions are made. Before you arrived, the most important decision since since leaving the front lines had been what galactic time zone to use.",
             Self::Cells => "Where they keep prisoners such as yourself. The ship is on a skeleton crew on its way to pick up troops and the security isn't up to scratch, so you managed to force open the door.",
             Self::MessHall => "Where the crew eat their meals. A holo-screen in the corner is playing a game of half-G volleyball.",
             Self::Kitchen => "An immaculately clean kitchen area. All the appliances are electric - no open flames are allowed on the ship.",
             Self::Stairwell => "A stairwell. There's not much to do, but out the window you can see the ship's engines pushing you forward into your captors' grip.",
             
-            Self::CrewArea => "Where the soldiers relax after a long cycle. If there were any, that is.",
-            Self::StoreRoom => "A small room with many shelves containing various things.",
+            Self::CrewArea => "Where the soldiers relax after a long cycle. If there were any, that is. There's a darts board on the wall, but no darts anywhere.",
+            Self::StoreRoom => "A small room with many shelves containing various things. The light is broken so you can only make out shapes close to the door.",
             Self::LowerCorridor => "A corridor connecting the crew area to the engine room.",
-            Self::WashRoom => "A wash room containing a few showers and a few toilets. This is a military ship, so there's no need for privacy.",
+            Self::WashRoom => "A spotless wash room containing a few showers and a few toilets. This is a military vessel, so there's no need for privacy.",
             Self::Bunks => "The soldiers will sleep here when they are on board",
             Self::EngineRoom => "Where the ship's internals are serviced from. The actual engines are at the back of the ship, but this is where the boiler and the electrical breakers are.",
 
@@ -91,24 +91,35 @@ impl Room {
     }
 }
 
+/// A transition between two [`Room`]s
+#[derive(Debug)]
+pub struct RoomTransition {
+    /// A message to display when moving
+    pub message: &'static str,
+    /// Which [`Room`] to go to
+    pub to: Room,
+    /// What option to show the player. If [`None`], it will default to the name of [Self::to]
+    pub prompt_text: Option<&'static str>,
+}
+
 /// The state of a room
 #[derive(Debug)]
 pub struct RoomState {
-    /// Which room this is the state of 
+    /// Which room this is the state of
     pub room: Room,
     /// What items are in the room for the [`Player`][crate::player::Player] to pick up
     pub items: Vec<Item>,
     /// An [`Enemy`], if there is one
     pub enemy: Option<Enemy>,
     /// Which other rooms the player can go to from this one
-    pub connections: Vec<Room>
+    pub connections: Vec<RoomTransition>,
 }
 
 /// The state of all rooms
 #[derive(Debug)]
 pub struct RoomGraph {
     /// A map from a [`Room`] to a [`RoomState`]
-    pub rooms: HashMap<Room, RoomState>
+    pub rooms: HashMap<Room, RoomState>,
 }
 
 impl RoomGraph {

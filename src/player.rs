@@ -1,11 +1,11 @@
-//! Functionality related to the [`Player`]'s state and actions 
+//! Functionality related to the [`Player`]'s state and actions
 
-use crate::combat::{Health, self};
-use crate::items::Item;
+use crate::combat::{self, Health};
 use crate::config::{self, STARTING_ROOM};
-use crate::menu::{Menu, Screen, OptionList};
-use crate::rooms::{Room, RoomGraph, RoomState};
+use crate::items::Item;
 use crate::map;
+use crate::menu::{Menu, OptionList, Screen};
+use crate::rooms::{Room, RoomGraph, RoomState, RoomTransition};
 
 /// The state of the player
 #[derive(Debug)]
@@ -23,17 +23,32 @@ pub struct Player {
     room_graph: RoomGraph,
 }
 
-/// An action the [`Player`] can take outside of a battle 
+/// An action the [`Player`] can take outside of a battle
 #[derive(Debug)]
-enum PassiveAction {
+enum PassiveAction<'a> {
     /// Print the [`Player`]'s health
     CheckState,
     /// Go to a [`Room`] which is connected to the current one
-    GoToRoom(Room),
+    GoToRoom(&'a RoomTransition),
     /// Use the [`Item`] at the given index into the [player's inventory][Player::inventory]
     UseItem(usize),
     /// Add the [`Item`] at the given index into the [current room's inventory][RoomState::items] to the [player's inventory][Player::inventory]
     PickUpItem(usize),
+}
+
+/// Prints a screen with the details of a [`RoomTransition`] and the player's new [`Room`]
+fn print_room_transition(transition: &RoomTransition, menu: &mut impl Menu) {
+    let screen = Screen {
+        title: &format!("You go to the {}", transition.to.get_name()),
+        content: &format!(
+            "{}\nYou are now in the {} - {}",
+            transition.message,
+            transition.to.get_name(),
+            transition.to.get_description()
+        ),
+    };
+
+    menu.show_screen(screen);
 }
 
 impl Player {
@@ -53,7 +68,7 @@ impl Player {
             title: &format!("You are in the {}.", self.room.get_name()),
             content: self.room.get_description(),
         };
-        
+
         menu.show_screen(screen);
     }
 
@@ -66,13 +81,20 @@ impl Player {
         let room_state = self.get_room_state();
 
         for connection in &room_state.connections {
-            options.push(PassiveAction::GoToRoom(*connection));
-            options_str.push(format!("Go to the {}", connection.get_name()));
+            options.push(PassiveAction::GoToRoom(connection));
+            options_str.push(format!(
+                "Go to the {}",
+                connection.prompt_text.unwrap_or(connection.to.get_name())
+            ));
         }
 
         for (i, item) in room_state.items.iter().enumerate() {
             options.push(PassiveAction::PickUpItem(i));
-            options_str.push(format!("Pick up the {} - {}", item.get_name(), item.get_description()));
+            options_str.push(format!(
+                "Pick up the {} - {}",
+                item.get_name(),
+                item.get_description()
+            ));
         }
 
         for (i, item) in self.inventory.iter().enumerate() {
@@ -95,17 +117,26 @@ impl Player {
 
         match action {
             PassiveAction::CheckState => self.print_state(menu),
-            PassiveAction::GoToRoom(r) => self.room = r,
+            PassiveAction::GoToRoom(r) => {
+                print_room_transition(r, menu);
+                self.room = r.to;
+            }
             PassiveAction::UseItem(i) => self.use_item(menu, i),
             PassiveAction::PickUpItem(i) => self.pick_up_item_from_room(i),
         }
     }
 
-    /// Prints the [`Player`]'s health
+    /// Prints the [`Player`]'s room and health
     fn print_state(&self, menu: &mut impl Menu) {
         let screen = Screen {
             title: "You take a moment to rest and check your body for injuries",
-            content: &format!("You are at {}/{} HP", self.health, self.max_health),
+            content: &format!(
+                "You are in the {} - {}\nYou are at {}/{} HP",
+                self.room.get_name(),
+                self.room.get_description(),
+                self.health,
+                self.max_health
+            ),
         };
 
         menu.show_screen(screen);
@@ -120,13 +151,18 @@ impl Player {
 
                 let screen = Screen {
                     title: &format!("You ate your {}", f.name),
-                    content: &format!("You are healed by {} HP.\nYou are now at {}/{} HP.", self.health - prev_health, self.health, self.max_health),
+                    content: &format!(
+                        "You are healed by {} HP.\nYou are now at {}/{} HP.",
+                        self.health - prev_health,
+                        self.health,
+                        self.max_health
+                    ),
                 };
 
                 menu.show_screen(screen);
 
                 self.inventory.remove(i);
-            },
+            }
             Item::Weapon(_) => {
                 panic!("Weapons cannot be used outside of combat")
             }
@@ -150,9 +186,9 @@ impl Player {
     pub fn choose_combat_action(&self, menu: &mut impl Menu) -> combat::Action {
         // Init lists of options and their string representations
         let mut options = vec![
-            combat::Action::Nothing, 
-            combat::Action::DodgeLeft, 
-            combat::Action::DodgeRight
+            combat::Action::Nothing,
+            combat::Action::DodgeLeft,
+            combat::Action::DodgeRight,
         ];
         let mut options_str = vec![
             "Do nothing".to_string(),
@@ -188,17 +224,16 @@ impl Player {
             let list = OptionList::new(options, "Which way do you attack?");
 
             let direction = menu.show_option_list(list);
-            
+
             match direction {
                 0 => combat::Action::AttackLeft(i),
                 1 => combat::Action::AttackStraight(i),
                 2 => combat::Action::AttackRight(i),
-                _ => unreachable!()
+                _ => unreachable!(),
             }
         } else {
             options.swap_remove(choice)
         }
-
     }
 
     /// Get a [`String`] describing the [`Player`] performing a [combat action][combat::Action]
@@ -206,11 +241,20 @@ impl Player {
         use combat::Action::*;
 
         match action {
-            AttackLeft(w) => format!("You attack to the left with your {}", self.inventory[w].get_name()),
-            AttackRight(w) => format!("You attack to the right with your {}", self.inventory[w].get_name()),
-            AttackStraight(w) => format!("You attack in front of you with your {}", self.inventory[w].get_name()),
+            AttackLeft(w) => format!(
+                "You attack to the left with your {}",
+                self.inventory[w].get_name()
+            ),
+            AttackRight(w) => format!(
+                "You attack to the right with your {}",
+                self.inventory[w].get_name()
+            ),
+            AttackStraight(w) => format!(
+                "You attack in front of you with your {}",
+                self.inventory[w].get_name()
+            ),
             EatFood(f) => format!("You attempt to eat your {}", self.inventory[f].get_name()),
-            
+
             DodgeLeft => "You dodge to the left".to_string(),
             DodgeRight => "You dodge to the right".to_string(),
             Nothing => "You do nothing".to_string(),

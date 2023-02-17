@@ -20,7 +20,8 @@ pub(super) fn cook() -> Enemy {
 pub(super) fn mechanic() -> Enemy {
     Enemy {
         name: "Mechanic",
-        description: "The ship's mechanic. They check the ship every cycle and fix anything that's broken. They were previously a high ranking ISPD officer and still carry a taser.",
+        description: "The ship's mechanic. They check the ship every cycle and fix anything that's broken. They were previously a high ranking ISPD officer and still carry a taser everywhere with them. \
+At the moment they're checking the ship's comms, while listening to music through a pair of particularly bulky headphones. Bad practice, of course, but you don't mind.",
         inventory: vec![weapons::ispd_taser()],
 
         health: Health::new(10),
