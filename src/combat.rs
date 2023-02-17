@@ -33,7 +33,7 @@ impl Enemy {
         match action {
             AttackLeft(w) => format!("The {} attacks to the left with their {}", self.name, self.inventory[w].get_name()),
             AttackRight(w) => format!("The {} attacks to the right with their {}", self.name, self.inventory[w].get_name()),
-            AttackStraight(w) => format!("The {} attacks in front of you with their {}", self.name, self.inventory[w].get_name()),
+            AttackStraight(w) => format!("The {} attacks in front of them with their {}", self.name, self.inventory[w].get_name()),
             EatFood(f) => format!("The {} attempts to eat their {}", self.name, self.inventory[f].get_name()),
             
             DodgeLeft => format!("The {} dodges to the left", self.name),
@@ -138,8 +138,8 @@ impl Enemy {
 /// A [`BattleResult`] representing the outcome of the battle. If this is a [player loss][BattleResult::PlayerLoss], the player lost the battle and the loop should reset.
 pub fn battle(player: &mut Player, mut enemy: Enemy, turn_number: &mut usize, menu: &mut impl Menu) -> BattleResult {
     let screen = Screen {
-        title: &format!("You are spotted by {}", enemy.name),
-        content: &format!("The {} sees you and blocks your path.", enemy.description),
+        title: &format!("You are spotted by the {}", enemy.name),
+        content: &format!("The {} sees you and blocks your path. They are {}", enemy.name, enemy.description),
     };
 
     menu.show_screen(screen);
