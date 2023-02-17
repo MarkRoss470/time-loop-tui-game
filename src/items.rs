@@ -20,7 +20,7 @@ pub struct Weapon {
     pub name: &'static str,
     /// A description of the weapon
     pub description: &'static str,
-    
+
     /// How much damage the weapon deals if it hits an opponent who didn't dodge
     pub straight_damage: Damage,
     /// How much damage the weapon deals if it hits an opponent who dodged
@@ -35,7 +35,7 @@ pub enum Item {
     /// A food item
     Food(Food),
     /// A weapon
-    Weapon(Weapon)
+    Weapon(Weapon),
 }
 
 impl Item {

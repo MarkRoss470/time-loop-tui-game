@@ -2,11 +2,19 @@
 
 mod health;
 
-use std::{cmp::Ordering, collections::hash_map::DefaultHasher, hash::{Hash, Hasher}};
+use std::{
+    cmp::Ordering,
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+};
 
-use crate::{items::Item, player::Player, menu::{Menu, Screen}};
+use crate::{
+    items::Item,
+    menu::{Menu, Screen},
+    player::Player,
+};
 
-pub use health::{Health, Damage};
+pub use health::{Damage, Health};
 
 /// An enemy which can be battled
 #[derive(Debug, Hash)]
@@ -15,8 +23,8 @@ pub struct Enemy {
     pub name: &'static str,
     /// A short description of the enemy
     pub description: &'static str,
-    
-    /// The items the enemy can use in battle. 
+
+    /// The items the enemy can use in battle.
     /// Any items left over at the end of a battle will be given to the player.
     pub inventory: Vec<Item>,
     /// The enemy's current health
@@ -26,16 +34,32 @@ pub struct Enemy {
 }
 
 impl Enemy {
-    /// Gets a string describing the enemy carrying out a provided action 
+    /// Gets a string describing the enemy carrying out a provided action
     pub fn describe_combat_action(&self, action: Action) -> String {
         use Action::*;
 
         match action {
-            AttackLeft(w) => format!("The {} attacks to the left with their {}", self.name, self.inventory[w].get_name()),
-            AttackRight(w) => format!("The {} attacks to the right with their {}", self.name, self.inventory[w].get_name()),
-            AttackStraight(w) => format!("The {} attacks in front of them with their {}", self.name, self.inventory[w].get_name()),
-            EatFood(f) => format!("The {} attempts to eat their {}", self.name, self.inventory[f].get_name()),
-            
+            AttackLeft(w) => format!(
+                "The {} attacks to the left with their {}",
+                self.name,
+                self.inventory[w].get_name()
+            ),
+            AttackRight(w) => format!(
+                "The {} attacks to the right with their {}",
+                self.name,
+                self.inventory[w].get_name()
+            ),
+            AttackStraight(w) => format!(
+                "The {} attacks in front of them with their {}",
+                self.name,
+                self.inventory[w].get_name()
+            ),
+            EatFood(f) => format!(
+                "The {} attempts to eat their {}",
+                self.name,
+                self.inventory[f].get_name()
+            ),
+
             DodgeLeft => format!("The {} dodges to the left", self.name),
             DodgeRight => format!("The {} dodges to the right", self.name),
             Nothing => format!("The {} does nothing", self.name),
@@ -60,7 +84,7 @@ pub enum Action {
     /// The combatant does nothing
     Nothing,
     /// The combatant attempts to eat the food item at the given index in their inventory.
-    /// This may not happen if they are attacked on the same turn. 
+    /// This may not happen if they are attacked on the same turn.
     EatFood(usize),
     /// The combatant attacks straight with the weapon at the given index in their inventory.
     /// This attack will connect unless the opponent dodges or attacks with a faster weapon.
@@ -72,11 +96,11 @@ pub enum Action {
     /// This attack will only connect if the opponent chooses to [dodge left][Action::DodgeRight].
     AttackRight(usize),
     /// The combatant dodges to the left.
-    /// This means they will not be hit by [straight attacks][Action::AttackStraight], but they will be hit by [attacks to the left][Action::AttackLeft] 
+    /// This means they will not be hit by [straight attacks][Action::AttackStraight], but they will be hit by [attacks to the left][Action::AttackLeft]
     DodgeLeft,
     /// The combatant dodges to the right.
     /// This means they will not be hit by [straight attacks][Action::AttackStraight], but they will be hit by [attacks to the left][Action::AttackRight]
-    DodgeRight
+    DodgeRight,
 }
 
 impl Enemy {
@@ -93,16 +117,23 @@ impl Enemy {
     fn choose_combat_action(&mut self, turn_number: usize) -> Action {
         // If enemy is at less than half health and has food, then eat it
         if self.health.as_usize() * 2 <= self.max_health.as_usize() {
-            if let Some(food_index) = self.inventory.iter().position(|i|matches!(i, Item::Food(_))) {
+            if let Some(food_index) = self
+                .inventory
+                .iter()
+                .position(|i| matches!(i, Item::Food(_)))
+            {
                 return Action::EatFood(food_index);
             }
         }
 
         // Find the index of the first weapon in the inventory, if there is one
-        let weapon_index = self.inventory.iter().position(|i|matches!(i, Item::Weapon(_)));
+        let weapon_index = self
+            .inventory
+            .iter()
+            .position(|i| matches!(i, Item::Weapon(_)));
         // Get a hash of self using the turn number
         let hash = self.hash_with_turn(turn_number);
-        
+
         // Pseudorandomly pick an action
         match weapon_index {
             Some(weapon_index) => match hash % 8 {
@@ -112,34 +143,40 @@ impl Enemy {
                 5 => Action::DodgeLeft,
                 6 => Action::DodgeRight,
                 7 => Action::Nothing,
-                _ => unreachable!()
-            }
-            None => {
-                match hash % 7 {
-                    0..=1 => Action::DodgeLeft,
-                    2..=4 => Action::Nothing,
-                    5..=6 => Action::DodgeRight,
-                    _ => unreachable!()
-                }
-            }
+                _ => unreachable!(),
+            },
+            None => match hash % 7 {
+                0..=1 => Action::DodgeLeft,
+                2..=4 => Action::Nothing,
+                5..=6 => Action::DodgeRight,
+                _ => unreachable!(),
+            },
         }
-     }
+    }
 }
 
 /// Carries out a battle between the player and the enemy. If the player wins the battle, they will pick up any items which the enemy had at the end of the battle.
-/// 
+///
 /// ### Params:
 /// * `player`: the [`Player`]'s current state
 /// * `enemy`: the [`Enemy`] to battle
 /// * `turn_number`: the turn number of the game. This will be incremented every battle turn.
 /// * `menu`: the [`Menu`] to display to
-/// 
+///
 /// ### Returns:
 /// A [`BattleResult`] representing the outcome of the battle. If this is a [player loss][BattleResult::PlayerLoss], the player lost the battle and the loop should reset.
-pub fn battle(player: &mut Player, mut enemy: Enemy, turn_number: &mut usize, menu: &mut impl Menu) -> BattleResult {
+pub fn battle(
+    player: &mut Player,
+    mut enemy: Enemy,
+    turn_number: &mut usize,
+    menu: &mut impl Menu,
+) -> BattleResult {
     let screen = Screen {
         title: &format!("You are spotted by the {}", enemy.name),
-        content: &format!("The {} sees you and blocks your path. They are {}", enemy.name, enemy.description),
+        content: &format!(
+            "The {} sees you and blocks your path. They are {}",
+            enemy.name, enemy.description
+        ),
     };
 
     menu.show_screen(screen);
@@ -154,9 +191,9 @@ pub fn battle(player: &mut Player, mut enemy: Enemy, turn_number: &mut usize, me
         let turn_text = execute_actions(player, &mut enemy, player_action, enemy_action);
 
         // Show the result of the turn
-        let turn_text = format!("{turn_text}\nYou are now at {}/{} HP.\nThe {} is now at {}/{} HP",
-            player.health, player.max_health,
-            enemy.name, enemy.health, enemy.max_health,
+        let turn_text = format!(
+            "{turn_text}\nYou are now at {}/{} HP.\nThe {} is now at {}/{} HP",
+            player.health, player.max_health, enemy.name, enemy.health, enemy.max_health,
         );
 
         let screen = Screen {
@@ -171,7 +208,7 @@ pub fn battle(player: &mut Player, mut enemy: Enemy, turn_number: &mut usize, me
         }
         if enemy.health.is_0() {
             win_battle(player, enemy, menu);
-            return  BattleResult::PlayerWin;
+            return BattleResult::PlayerWin;
         }
 
         *turn_number += 1;
@@ -183,7 +220,10 @@ fn win_battle(player: &mut Player, enemy: Enemy, menu: &mut impl Menu) {
     let mut result_text = "You won the battle!\n\n".to_string();
 
     if !enemy.inventory.is_empty() {
-        result_text += &format!("You pick up the items that the {} was carrying:\n", enemy.name);
+        result_text += &format!(
+            "You pick up the items that the {} was carrying:\n",
+            enemy.name
+        );
     }
 
     for item in &enemy.inventory {
@@ -192,7 +232,7 @@ fn win_battle(player: &mut Player, enemy: Enemy, menu: &mut impl Menu) {
 
     let screen = Screen {
         title: "Battle Result",
-        content: &result_text
+        content: &result_text,
     };
 
     menu.show_screen(screen);
@@ -202,17 +242,22 @@ fn win_battle(player: &mut Player, enemy: Enemy, menu: &mut impl Menu) {
     }
 }
 
-/// Carries out the actions performed by the player and enemy on a given turn. 
-/// 
+/// Carries out the actions performed by the player and enemy on a given turn.
+///
 /// ### Params:
 /// * `player`: the [`Player`]'s state
 /// * `enemy`: the [`Enemy`] which is being battled
 /// * `player_action`: the [`Action`] which the player chose
 /// * `enemy_action`: the [`Action`] which the enemy chose
-/// 
+///
 /// ### Returns:
 /// A string containing a short description of the result of the turn
-fn execute_actions(player: &mut Player, enemy: &mut Enemy, player_action: Action, enemy_action: Action) -> String {
+fn execute_actions(
+    player: &mut Player,
+    enemy: &mut Enemy,
+    player_action: Action,
+    enemy_action: Action,
+) -> String {
     use Action::*;
 
     // Take the turn
@@ -223,7 +268,10 @@ fn execute_actions(player: &mut Player, enemy: &mut Enemy, player_action: Action
             let damage = weapon.straight_damage;
             enemy.health -= damage;
 
-            format!("You hit the {} with your {} and dealt {} damage.", enemy.name, weapon.name, damage)
+            format!(
+                "You hit the {} with your {} and dealt {} damage.",
+                enemy.name, weapon.name, damage
+            )
         }
         // Enemy hits player straight
         (Nothing | AttackLeft(_) | AttackRight(_) | EatFood(_), AttackStraight(e)) => {
@@ -231,7 +279,10 @@ fn execute_actions(player: &mut Player, enemy: &mut Enemy, player_action: Action
             let damage = weapon.straight_damage;
             player.health -= damage;
 
-            format!("You hit the {} with your {} and dealt {} damage.", enemy.name, weapon.name, damage)
+            format!(
+                "You hit the {} with your {} and dealt {} damage.",
+                enemy.name, weapon.name, damage
+            )
         }
         // Both attack straight
         (AttackStraight(p), AttackStraight(e)) => {
@@ -279,14 +330,20 @@ fn execute_actions(player: &mut Player, enemy: &mut Enemy, player_action: Action
             let Item::Food(p_food) = player.inventory.remove(p) else {unreachable!()};
             let p_inc = player.health.heal_to_max(p_food.heals_for, player.max_health);
 
-            format!("You ate your {} and were healed by {} HP", p_food.name, p_inc)
+            format!(
+                "You ate your {} and were healed by {} HP",
+                p_food.name, p_inc
+            )
         }
         // Enemy heals
         (_, EatFood(e)) => {
             let Item::Food(e_food) = enemy.inventory.remove(e) else {unreachable!()};
             let e_inc = enemy.health.heal_to_max(e_food.heals_for, enemy.max_health);
 
-            format!("The {} ate their {} and was healed by {} HP", enemy.name,  e_food.name, e_inc)
+            format!(
+                "The {} ate their {} and was healed by {} HP",
+                enemy.name, e_food.name, e_inc
+            )
         }
         // Enemy dodges but player hits
         (AttackLeft(p), DodgeLeft) | (AttackRight(p), DodgeRight) => {
@@ -295,7 +352,10 @@ fn execute_actions(player: &mut Player, enemy: &mut Enemy, player_action: Action
             let prev_enemy_health = enemy.health;
             enemy.health -= p_weapon.dodge_damage;
 
-            format!("The {} dodged, but you caught them and dealt {} damage.", enemy.name, prev_enemy_health - enemy.health)
+            format!(
+                "The {} dodged, but you caught them and dealt {} damage.",
+                enemy.name, prev_enemy_health - enemy.health
+            )
         }
         // Player dodges but enemy hits
         (DodgeLeft, AttackLeft(e)) | (DodgeRight, AttackRight(e)) => {
@@ -304,7 +364,10 @@ fn execute_actions(player: &mut Player, enemy: &mut Enemy, player_action: Action
             let prev_player_health = player.health;
             player.health -= e_weapon.dodge_damage;
 
-            format!("You dodged, but the {} caught you and dealt {} damage.", enemy.name, prev_player_health - player.health)
+            format!(
+                "You dodged, but the {} caught you and dealt {} damage.",
+                enemy.name, prev_player_health - player.health
+            )
         }
         // Neither the player or the enemy attacks
         (Nothing | DodgeLeft | DodgeRight, Nothing | DodgeLeft | DodgeRight) => {
@@ -320,7 +383,8 @@ fn execute_actions(player: &mut Player, enemy: &mut Enemy, player_action: Action
         }
     };
 
-    format!("{}\n{}\n{result_text}", 
+    format!(
+        "{}\n{}\n{result_text}",
         player.describe_combat_action(player_action),
         enemy.describe_combat_action(enemy_action),
     )

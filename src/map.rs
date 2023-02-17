@@ -2,15 +2,14 @@
 
 use std::collections::HashMap;
 
-mod weapons;
-mod food;
 mod enemies;
+mod food;
 mod transitions;
+mod weapons;
 
-use crate::{rooms::{RoomGraph, Room, RoomState}};
+use crate::rooms::{Room, RoomGraph, RoomState};
 
 use self::transitions::*;
-
 
 /// Initialise a new [`RoomGraph`]
 pub fn init() -> RoomGraph {
@@ -53,7 +52,7 @@ pub fn init() -> RoomGraph {
         room: Room::Kitchen,
         items: vec![food::bread_roll()],
         enemy: None,
-        connections: vec![KITCHEN_TO_MESS_HALL]
+        connections: vec![KITCHEN_TO_MESS_HALL],
     };
 
     let stairwell = RoomState {
@@ -62,8 +61,6 @@ pub fn init() -> RoomGraph {
         enemy: None,
         connections: vec![STAIRWELL_TO_MESS_HALL, STAIRWELL_TO_CREW_AREA],
     };
-
-
 
     let crew_area = RoomState {
         room: Room::CrewArea,
@@ -107,7 +104,6 @@ pub fn init() -> RoomGraph {
         connections: vec![ENGINE_ROOM_TO_LOWER_CORRIDOR],
     };
 
-
     RoomGraph {
         rooms: HashMap::from([
             (Room::Bridge, bridge),
@@ -117,13 +113,12 @@ pub fn init() -> RoomGraph {
             (Room::MessHall, mess_hall),
             (Room::Kitchen, kitchen),
             (Room::Stairwell, stairwell),
-
             (Room::CrewArea, crew_area),
             (Room::StoreRoom, store_room),
             (Room::LowerCorridor, lower_corridor),
             (Room::Bunks, bunks),
             (Room::WashRoom, wash_room),
             (Room::EngineRoom, engine_room),
-        ])
+        ]),
     }
 }

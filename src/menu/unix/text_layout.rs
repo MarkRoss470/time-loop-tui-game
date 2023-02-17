@@ -28,8 +28,7 @@ pub(super) struct TextLayout<'a> {
 impl<'a> TextLayout<'a> {
     /// Adds a source line to the layout. The line will be wrapped, so it may span multiple render lines
     fn add_source_line(&mut self, line: &'a str) {
-        
-        // The x position of the end of the current render line 
+        // The x position of the end of the current render line
         let mut x = 0;
         // Points to the first char in the current render line
         let mut current_render_line_start = 0;
@@ -53,13 +52,11 @@ impl<'a> TextLayout<'a> {
                     // + 1 to account for the space between the words
                     current_render_line_end += word.len() + 1;
                 }
-                
+
                 // + 1 to account for the space between the words
                 x += width + 1;
                 continue;
             }
-
-
 
             // The remaining width on the current line
             let width_left = self.max_width - (x - 1);
@@ -128,10 +125,9 @@ impl<'a> TextLayout<'a> {
 
                 // Update end pointer to point past the end of the string
                 current_render_line_end = word_start_index + word.len();
-            } 
+            }
             // If the word does not need to be hyphenated
             else {
-
                 // Move to new line
                 let content = &line[current_render_line_start..current_render_line_end];
                 self.lines.push(TextLine {
@@ -146,7 +142,6 @@ impl<'a> TextLayout<'a> {
                 current_render_line_end += word.len() + 1;
 
                 x = width;
-
             }
         }
 
@@ -157,7 +152,6 @@ impl<'a> TextLayout<'a> {
             dash_at_end: false,
             length: content.graphemes(true).count(),
         });
-
     }
 
     /// Creates a new [`TextLayout`] from a given str

@@ -1,7 +1,9 @@
 //! Functions to create [`Weapon`] items
 
-use crate::{items::{Item, Weapon}, combat::Damage};
-
+use crate::{
+    combat::Damage,
+    items::{Item, Weapon},
+};
 
 /// Creates a new 'captain's blaster' item
 pub(super) const fn captains_blaster() -> Item {
@@ -11,7 +13,7 @@ pub(super) const fn captains_blaster() -> Item {
 
         straight_damage: Damage::new(7),
         dodge_damage: Damage::new(5),
-        speed: 3
+        speed: 3,
     })
 }
 
@@ -23,7 +25,7 @@ pub(super) const fn standard_blaster() -> Item {
 
         straight_damage: Damage::new(5),
         dodge_damage: Damage::new(2),
-        speed: 4
+        speed: 4,
     })
 }
 

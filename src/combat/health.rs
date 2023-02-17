@@ -1,10 +1,13 @@
 //! Contains the [`Health`] and [`Damage`] types for representing HP
 
-use std::{ops::{Sub, Add, SubAssign, AddAssign}, fmt::Display};
+use std::{
+    fmt::Display,
+    ops::{Add, AddAssign, Sub, SubAssign},
+};
 
 /// The health of the player or an enemy
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
-pub struct Health (usize);
+pub struct Health(usize);
 
 /// A change in [`Health`]. Note that it is unsigned - a [`Damage`] could represent healing as well, depending on the context.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]

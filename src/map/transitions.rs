@@ -1,6 +1,6 @@
 //! Room transitions
 
-use crate::rooms::{RoomTransition, Room};
+use crate::rooms::{Room, RoomTransition};
 
 /// Reduces boilerplate when defining [`RoomTransition`]s.
 /// Defines a constant with a visibility of `pub(super)` with a given name, start and destination rooms, and a description.
@@ -9,7 +9,7 @@ macro_rules! room_transition {
         pub(super) const $name: RoomTransition = RoomTransition {
             message: $message,
             to: Room::$to,
-            prompt_text: None
+            prompt_text: None,
         };
     };
 }

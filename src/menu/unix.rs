@@ -1,22 +1,22 @@
-use std::io::{Read, StdinLock, Write, Stdout, BufWriter};
+use std::io::{BufWriter, Read, StdinLock, Stdout, Write};
 use std::os::fd::AsRawFd;
 use std::time::Duration;
 
 use nix::libc::timeval;
-use nix::sys::select::{FdSet, select};
+use nix::sys::select::{select, FdSet};
 use nix::sys::time::TimeVal;
 
-use termion::{terminal_size, cursor};
-use termion::raw::{RawTerminal, IntoRawMode};
-use termion::screen::{IntoAlternateScreen, AlternateScreen};
+use termion::raw::{IntoRawMode, RawTerminal};
+use termion::screen::{AlternateScreen, IntoAlternateScreen};
+use termion::{cursor, terminal_size};
 
 use unicode_segmentation::UnicodeSegmentation;
 
-use super::{OptionList, Menu, Error};
+use super::{Error, Menu, OptionList};
 
 mod consts;
-mod text_layout;
 mod rendering;
+mod text_layout;
 
 use consts::*;
 use text_layout::*;
@@ -37,7 +37,7 @@ pub struct Tui {
 /// A unix specific error which can occur while showing a menu
 #[derive(Debug)]
 enum TuiError {
-    /// An [`Error`] which should be handled. 
+    /// An [`Error`] which should be handled.
     MenuError(Error),
     /// If the terminal is too small to fit the content
     TerminalTooSmall,
@@ -63,19 +63,14 @@ fn poll_stdin(stdin: &mut StdinLock) -> Result<Option<String>, std::io::Error> {
     fd_set.insert(stdin.as_raw_fd());
 
     // Create a TimeVal of 0 seconds
-    let mut zero_time: TimeVal = timeval{
+    let mut zero_time: TimeVal = timeval {
         tv_sec: 0,
         tv_usec: 0,
-    }.into();
+    }
+    .into();
 
     // Call the select syscall
-    let num_files = select (
-        None,
-        &mut fd_set,
-        None,
-        None,
-        &mut zero_time
-    )?;
+    let num_files = select(None, &mut fd_set, None, None, &mut zero_time)?;
 
     // If stdout was ready to read, get the data from it
     if num_files > 0 {
@@ -112,32 +107,35 @@ impl Drop for Tui {
 impl Menu for Tui {
     fn new() -> Result<Self, std::io::Error> {
         let mut stdout = std::io::stdout()
-            .into_raw_mode().unwrap()
-            .into_alternate_screen().unwrap();
+            .into_raw_mode()
+            .unwrap()
+            .into_alternate_screen()
+            .unwrap();
 
         // Hide the cursor
         write!(stdout, "{}", cursor::Hide)?;
 
         let stdout = BufWriter::new(stdout);
 
-        Ok(Self {
-            stdout,
-        })
+        Ok(Self { stdout })
     }
 
     fn try_show_option_list(&mut self, list: OptionList<'_>) -> Result<usize, Error> {
         // Get options from list with numbers
-        let items: Vec<_> = list.options.iter()
-            .map(String::as_str)
-            .collect();
+        let items: Vec<_> = list.options.iter().map(String::as_str).collect();
 
         let choice = self.choose_from_list(&items, list.prompt)?;
         Ok(choice)
     }
 
-    fn try_show_option_list_cancellable(&mut self, list: OptionList) -> Result<Option<usize>, Error> {
+    fn try_show_option_list_cancellable(
+        &mut self,
+        list: OptionList,
+    ) -> Result<Option<usize>, Error> {
         // Get options from list, including cancel option
-        let items: Vec<_> = list.options.iter()
+        let items: Vec<_> = list
+            .options
+            .iter()
             .map(String::as_str)
             .chain(std::iter::once("Cancel"))
             .collect();
@@ -152,9 +150,8 @@ impl Menu for Tui {
             Ok(Some(selection))
         }
     }
-    
-    fn try_show_screen(&mut self, screen: super::Screen) -> Result<(), Error> {
 
+    fn try_show_screen(&mut self, screen: super::Screen) -> Result<(), Error> {
         // Lock stdin
         let mut stdin = std::io::stdin().lock();
         // A cache for the layout so that it doesn't need to be regenerated every frame
@@ -181,14 +178,16 @@ impl Menu for Tui {
                 let graphemes = (ms / MS_PER_CHAR) as usize;
                 // If the scroll has reached the end of the string, set render_all_graphemes to true
                 // This means that the next character press will quit instead of trying to skip the scroll
-                if graphemes > num_graphemes {render_all_graphemes = true}
+                if graphemes > num_graphemes {
+                    render_all_graphemes = true;
+                }
                 graphemes
             };
 
             match self.new_frame() {
                 Err(TuiError::TerminalTooSmall) => {
                     self.render_too_small_error_screen()?;
-                    continue
+                    continue;
                 }
                 Err(TuiError::MenuError(m)) => return Err(m),
                 Ok(()) => (),
@@ -200,7 +199,9 @@ impl Menu for Tui {
 
             if poll_stdin(&mut stdin)?.is_some() {
                 // If the scroll has finished, break
-                if render_all_graphemes {break}
+                if render_all_graphemes {
+                    break;
+                }
                 // Otherwise, skip the rest of the scroll
                 render_all_graphemes = true;
             }
@@ -208,6 +209,4 @@ impl Menu for Tui {
 
         Ok(())
     }
-
 }
-
