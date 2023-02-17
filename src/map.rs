@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 mod weapons;
 mod food;
+mod enemies;
 
 use crate::{rooms::{RoomGraph, Room, RoomState}};
 
@@ -20,7 +21,14 @@ pub fn init() -> RoomGraph {
         room: Room::UpperCorridor,
         items: vec![],
         enemy: None,
-        connections: vec![Room::Bridge, Room::MessHall],
+        connections: vec![Room::Bridge, Room::Cells, Room::StrategyRoom, Room::MessHall],
+    };
+
+    let strategy_room = RoomState {
+        room: Room::StrategyRoom,
+        items: vec![],
+        enemy: Some(enemies::skipper()),
+        connections: vec![Room::UpperCorridor],
     };
 
     let cells = RoomState {
@@ -33,7 +41,7 @@ pub fn init() -> RoomGraph {
     let mess_hall = RoomState {
         room: Room::MessHall,
         items: vec![],
-        enemy: None,
+        enemy: Some(enemies::cook()),
         connections: vec![Room::UpperCorridor, Room::Kitchen, Room::Stairwell]
     };
 
@@ -76,7 +84,7 @@ pub fn init() -> RoomGraph {
 
     let bunks = RoomState {
         room: Room::Bunks,
-        items: vec![],
+        items: vec![weapons::throwing_dart_set()],
         enemy: None,
         connections: vec![Room::LowerCorridor],
     };
@@ -91,15 +99,17 @@ pub fn init() -> RoomGraph {
     let engine_room = RoomState {
         room: Room::EngineRoom,
         items: vec![],
-        enemy: None,
+        enemy: Some(enemies::mechanic()),
         connections: vec![Room::LowerCorridor],
     };
+
 
     RoomGraph {
         rooms: HashMap::from([
             (Room::Bridge, bridge),
-            (Room::Cells, cells),
             (Room::UpperCorridor, upper_corridor),
+            (Room::StrategyRoom, strategy_room),
+            (Room::Cells, cells),
             (Room::MessHall, mess_hall),
             (Room::Kitchen, kitchen),
             (Room::Stairwell, stairwell),

@@ -13,6 +13,8 @@ pub enum Room {
     Bridge,
     /// The corridor on the upper floor
     UpperCorridor,
+    /// The strategy room
+    StrategyRoom,
     /// The cells where the player starts
     Cells,
     /// The mess hall
@@ -46,8 +48,9 @@ impl Room {
     pub const fn get_name(self) -> &'static str {
         match self {
             Self::Bridge => "Bridge",
-            Self::Cells => "Cells",
             Self::UpperCorridor => "Upper Corridor",
+            Self::StrategyRoom => "Strategy Room",
+            Self::Cells => "Cells",
             Self::MessHall => "Mess Hall",
             Self::Kitchen => "Kitchen",
             Self::Stairwell => "Stairwell",
@@ -68,13 +71,14 @@ impl Room {
     pub const fn get_description(self) -> &'static str {
         match self {
             Self::Bridge => "The control centre of the ship. Through the front window you can see into the darkness of space.",
-            Self::Cells => "Where they keep prisoners such as yourself. The ship is on a skeleton crew on its way to pick up troops and the security isn't up to scratch, so you managed to force open the door.",
             Self::UpperCorridor => "A corridor connecting the bridge to the rest of the ship.",
+            Self::StrategyRoom => "Where important tactical decisions are made. Before you arrived, the most important decision in a month had been what galactic time zone to use.",
+            Self::Cells => "Where they keep prisoners such as yourself. The ship is on a skeleton crew on its way to pick up troops and the security isn't up to scratch, so you managed to force open the door.",
             Self::MessHall => "Where the crew eat their meals. A holo-screen in the corner is playing a game of half-G volleyball.",
             Self::Kitchen => "An immaculately clean kitchen area. All the appliances are electric - no open flames are allowed on the ship.",
             Self::Stairwell => "A stairwell. There's not much to do, but out the window you can see the ship's engines pushing you forward into your captors' grip.",
             
-            Self::CrewArea => "Where the soldiers relax after a long day. If there were any, that is.",
+            Self::CrewArea => "Where the soldiers relax after a long cycle. If there were any, that is.",
             Self::StoreRoom => "A small room with many shelves containing various things.",
             Self::LowerCorridor => "A corridor connecting the crew area to the engine room.",
             Self::WashRoom => "A wash room containing a few showers and a few toilets. This is a military ship, so there's no need for privacy.",

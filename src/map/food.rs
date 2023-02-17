@@ -3,7 +3,7 @@
 use crate::{items::{Item, Food}, combat::Damage};
 
 /// Creates a new 'bread roll' item
-pub(super) fn bread_roll() -> Item {
+pub(super) const fn bread_roll() -> Item {
     Item::Food(Food {
         name: "Bread roll",
         description: "A soft white bread roll. It's tasty, but not substantial.",
