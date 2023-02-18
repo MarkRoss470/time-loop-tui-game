@@ -28,7 +28,7 @@ use rooms::Room;
 const INTRO_SCREEN: Screen = Screen {
     title: "Welcome Soldier",
     content: 
-"You are a fighter pilot for the Arnithian Galactic Republic. You were sent out in your experimental time-bending t-Jet to protect a cargo vessel, but an engine malfunction left you irradiated and stranded in space. \
+"The year is 2168. You are a fighter pilot for the Arnithian Galactic Republic. You were sent out in your experimental time-bending t-Jet to protect a cargo vessel, but an engine malfunction left you irradiated and stranded in space. \
 You wake up in a cell, confused and disoriented. You peer as far out of your cell as you can. There's someone in the room opposite you, but they're not looking at you. \
 You try the cell door. It's locked, obviously, but not the control panel looks insecure. You pull off the screen and jump two wires inside. The door slides open. \
 You keep your eyes on the person in the other room, but they don't seem to notice. Suddenly they look up and see you standing there. They rush out and before you know it you're bleeding out on the floor, and then
