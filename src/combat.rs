@@ -11,8 +11,7 @@ use std::{
 use crate::{
     items::Item,
     menu::{Menu, Screen},
-    player::Player, 
-    config::MAX_TURNS,
+    player::Player, config, 
 };
 
 pub use health::{Damage, Health};
@@ -112,7 +111,7 @@ impl Enemy {
     fn hash_with_turn(&self, turn_number: usize) -> u64 {
         let mut s = DefaultHasher::new();
         self.hash(&mut s);
-        turn_number.hash(&mut s);
+        (config::MAX_TURNS - turn_number + 1).hash(&mut s);
         s.finish()
     }
 
@@ -163,7 +162,6 @@ impl Enemy {
 /// ### Params:
 /// * `player`: the [`Player`]'s current state
 /// * `enemy`: the [`Enemy`] to battle
-/// * `turn_number`: the turn number of the game. This will be incremented every battle turn.
 /// * `menu`: the [`Menu`] to display to
 ///
 /// ### Returns:
@@ -171,7 +169,6 @@ impl Enemy {
 pub fn battle(
     player: &mut Player,
     mut enemy: Enemy,
-    turn_number: &mut usize,
     menu: &mut impl Menu,
 ) -> BattleResult {
     let screen = Screen {
@@ -188,7 +185,7 @@ pub fn battle(
     loop {
         // Get the player and enemy's actions
         let player_action = player.choose_combat_action(menu);
-        let enemy_action = enemy.choose_combat_action(*turn_number);
+        let enemy_action = enemy.choose_combat_action(player.remaining_turns);
 
         // Carry out the actions
         let turn_text = execute_actions(player, &mut enemy, player_action, enemy_action);
@@ -214,9 +211,9 @@ pub fn battle(
             return BattleResult::PlayerWin;
         }
 
-        *turn_number += 1;
+        player.remaining_turns -= 1;
 
-        if *turn_number == MAX_TURNS {
+        if player.remaining_turns == 0 {
             return BattleResult::MaxTurnsReached
         }
     }

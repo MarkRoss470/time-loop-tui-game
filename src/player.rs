@@ -18,6 +18,8 @@ pub struct Player {
     pub health: Health,
     /// The maximum health the [`Player`] can reach
     pub max_health: Health,
+    /// The number of turns the user has left before the loop resets
+    pub remaining_turns: usize,
 
     /// The current state of the rooms
     pub room_graph: RoomGraph,
@@ -76,6 +78,14 @@ impl Player {
         menu.show_screen(screen);
     }
 
+    /// Gets a [`String`] representing the number of turns left.
+    /// 1 turn = 20 sec
+    fn get_remaining_time(&self) -> String {
+        let mins = self.remaining_turns / 3;
+        let secs = self.remaining_turns % 3 * 20;
+        format!("{mins}:{secs:0<2}")
+    }
+
     /// Asks the user what [`PassiveAction`] to perform given the [`Player`]'s inventory and the current [`RoomState`]
     fn choose_passive_action(&self, menu: &mut impl Menu) -> PassiveAction {
         // Init lists of options and their string representations
@@ -120,7 +130,8 @@ impl Player {
             }
         }
 
-        let option_list = OptionList::new(&options_str, "What do you do?");
+        let prompt = format!("{} - What do you do?", self.get_remaining_time());
+        let option_list = OptionList::new(&options_str, &prompt);
 
         let choice = menu.show_option_list(option_list);
 
@@ -129,6 +140,8 @@ impl Player {
 
     /// Gets a [`PassiveAction`] from the user and carries it out
     pub fn take_passive_action(&mut self, menu: &mut impl Menu) {
+        self.remaining_turns -= 1;
+        
         let action = self.choose_passive_action(menu);
 
         match action {
@@ -220,7 +233,7 @@ I've not hidden them but Juuran knows there'll be trouble if they take them."
         let screen = Screen {
             title: "You take a moment to rest and check your body for injuries",
             content: &format!(
-                "You are in the {} - {}\nYou are at {}/{} HP\nYou have:\n{}",
+                "You are in the {} - {}\nYou are at {}/{} HP\nYou have:\n{}• {} to get off the ship\n",
                 self.room.get_name(),
                 self.room.get_description(),
                 self.health,
@@ -228,7 +241,8 @@ I've not hidden them but Juuran knows there'll be trouble if they take them."
                 self.inventory
                     .iter()
                     .map(|item| format!("• {} - {}\n", item.get_name(), item.get_description()))
-                    .collect::<String>()
+                    .collect::<String>(),
+                self.get_remaining_time()
             ),
         };
 
@@ -303,7 +317,8 @@ I've not hidden them but Juuran knows there'll be trouble if they take them."
         }
 
         // Get the user to pick an option
-        let list = OptionList::new(&options_str, "What do you do?");
+        let prompt = format!("{} - What do you do?", self.get_remaining_time());
+        let list = OptionList::new(&options_str, &prompt);
         let choice = menu.show_option_list(list);
 
         // If the action was an attack, get the user to pick which direction to aim it
@@ -377,6 +392,7 @@ impl Player {
             inventory: Vec::new(),
             health: config::PLAYER_START_HEALTH,
             max_health: config::PLAYER_START_MAX_HEALTH,
+            remaining_turns: config::MAX_TURNS,
 
             room_graph: map::init(),
         }

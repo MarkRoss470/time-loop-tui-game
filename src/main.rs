@@ -19,7 +19,6 @@ mod player;
 mod rooms;
 
 use combat::{battle, BattleResult};
-use config::MAX_TURNS;
 use menu::{Screen, Menu};
 use player::Player;
 use rooms::Room;
@@ -38,7 +37,7 @@ You hot-wire the door, but then you're more cautious. You duck down below the le
 
 /// The screen to show when the time loop resets
 const LOOP_SCREEN: Screen = Screen {
-    title: "You wake up in a cell",
+    title: "\"ISPD agents will arrive in: 10 minutes\"",
     content: "Well, here we go again... You break open the door and hope you don't get shot this time."
 };
 
@@ -58,22 +57,18 @@ fn main() {
     'time_loop: loop {
         let mut player = Player::init();
 
-        let mut turn_number = 0;
-
         player.print_room(menu);
 
         // The inner gameplay loop
         loop {
-
-            if turn_number >= MAX_TURNS {
+            if player.remaining_turns == 0 {
                 menu.show_screen(MAX_TURNS_SCREEN);
+                menu.show_screen(LOOP_SCREEN);
                 continue 'time_loop;
             }
 
-            turn_number += 1;
-
             if let Some(enemy) = player.get_room_state_mut().enemy.take() {
-                let battle_result = battle(&mut player, enemy, &mut turn_number, menu);
+                let battle_result = battle(&mut player, enemy, menu);
 
                 match battle_result {
                     BattleResult::PlayerWin => (),
@@ -83,6 +78,7 @@ fn main() {
                     },
                     BattleResult::MaxTurnsReached => {
                         menu.show_screen(MAX_TURNS_SCREEN);
+                        menu.show_screen(LOOP_SCREEN);
                         continue 'time_loop;
                     }
                 }
