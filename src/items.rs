@@ -38,8 +38,16 @@ pub enum Item {
     Weapon(Weapon),
     /// The maps which are needed to fly the escape pod
     Maps,
-    /// The keys to the escape pod
+    /// The keys to the escape pod, found by [searching the engine room][crate::map::RoomAction::EngineRoomTakeKeys]
     EscapePodKeys,
+
+    /// Dust - a joke item from trying to [climb into the vents][crate::map::RoomAction::CellsClimbIntoVents]
+    Dust,
+    /// Shame - a joke item from trying to [hack the mainframe][crate::map::RoomAction::BridgeHackTheMainframe]
+    Shame,
+    /// The captain's diary - a joke item found by [searching the bunks][crate::map::RoomAction::BunksGetDiary]
+    /// Stores the page to read
+    CaptainsDiary(u8)
 }
 
 impl Item {
@@ -49,7 +57,10 @@ impl Item {
             Self::Food(f) => f.name,
             Self::Weapon(w) => w.name,
             Self::Maps => "Galactic Maps 2168 Edition",
-            Self::EscapePodKeys => "Escape Pod Keys"
+            Self::EscapePodKeys => "Escape Pod Keys",
+            Self::Dust => "A thin layer of dust",
+            Self::Shame => "A sense of shame",
+            Self::CaptainsDiary(_) => "The Captain's Diary"
         }
     }
 
@@ -60,6 +71,9 @@ impl Item {
             Self::Weapon(w) => w.description,
             Self::Maps => "A map of the galaxy in the format which spacecraft use to plot routes",
             Self::EscapePodKeys => "A key card labelled 'escape pod'. The label is beginning to wear.",
+            Self::Dust => "You'd think air vents would be clean like the rest of the ship, but evidently not. If this were an Arnithian ship, you could climb into the vents just fine.",
+            Self::Shame => "Maybe you're not cut out to be a soldier in the 22nd century. SQL databases have been resigned to museums for centennials.",
+            Self::CaptainsDiary(_) => "The diary you found underneath the bunks. It's physical paper and the handwriting is awful."
         }
     }
 }

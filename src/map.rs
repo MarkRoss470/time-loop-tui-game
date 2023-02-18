@@ -18,7 +18,8 @@ use self::transitions::*;
 pub fn init() -> RoomGraph {
     // The bridge
     let bridge = RoomState::new(Room::Bridge, vec![BRIDGE_TO_UPPER_CORRIDOR])
-        .add_item(weapons::intruders_blaster());
+        .add_item(weapons::intruders_blaster())
+        .add_action(RoomAction::BridgeHackTheMainframe);
 
     // The upper corridor
     let upper_corridor = RoomState::new(
@@ -37,7 +38,8 @@ pub fn init() -> RoomGraph {
         .add_action(RoomAction::StrategyRoomTakeMaps);
 
     // The cells
-    let cells = RoomState::new(Room::Cells, vec![CELLS_TO_UPPER_CORRIDOR]);
+    let cells = RoomState::new(Room::Cells, vec![CELLS_TO_UPPER_CORRIDOR])
+        .add_action(RoomAction::CellsClimbIntoVents);
 
     // The mess hall
     let mess_hall = RoomState::new(
@@ -48,11 +50,13 @@ pub fn init() -> RoomGraph {
             MESS_HALL_TO_STAIRWELL,
         ],
     )
-    .with_enemy(enemies::cook());
+    .with_enemy(enemies::cook())
+    .add_action(RoomAction::MessHallWatchTheGame);
 
     // The kitchen
-    let kitchen =
-        RoomState::new(Room::Kitchen, vec![KITCHEN_TO_MESS_HALL]).add_item(food::bread_roll());
+    let kitchen = RoomState::new(Room::Kitchen, vec![KITCHEN_TO_MESS_HALL])
+        .add_item(food::bread_roll())
+        .add_item(weapons::eating_knife());
 
     // The stairwell
     let stairwell = RoomState::new(
@@ -72,7 +76,8 @@ pub fn init() -> RoomGraph {
     );
 
     // The store room
-    let store_room = RoomState::new(Room::StoreRoom, vec![STORE_ROOM_TO_CREW_AREA]);
+    let store_room = RoomState::new(Room::StoreRoom, vec![STORE_ROOM_TO_CREW_AREA])
+        .add_action(RoomAction::StoreRoomFindChocolate);
 
     // The lower corridor
     let lower_corridor = RoomState::new(
@@ -87,15 +92,18 @@ pub fn init() -> RoomGraph {
 
     // The bunks
     let bunks = RoomState::new(Room::Bunks, vec![BUNKS_TO_LOWER_CORRIDOR])
-        .add_item(weapons::throwing_dart_set());
+        .add_item(weapons::throwing_dart_set())
+        .add_action(RoomAction::BunksGetDiary);
 
     // The wash room
-    let wash_room = RoomState::new(Room::WashRoom, vec![WASH_ROOM_TO_LOWER_CORRIDOR]);
+    let wash_room = RoomState::new(Room::WashRoom, vec![WASH_ROOM_TO_LOWER_CORRIDOR])
+        .add_item(weapons::shaving_razor());
 
     // The engine room
     let engine_room = RoomState::new(Room::EngineRoom, vec![ENGINE_ROOM_TO_LOWER_CORRIDOR])
         .with_enemy(enemies::mechanic())
-        .add_action(RoomAction::EngineRoomTakeKeys);
+        .add_action(RoomAction::EngineRoomTakeKeys)
+        .add_item(weapons::wrench());
 
     let escape_pod = RoomState::new(Room::EscapePod, vec![ESCAPE_POD_TO_CREW_AREA])
         .add_action(RoomAction::EscapePodTakeOff);

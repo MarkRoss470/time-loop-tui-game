@@ -64,3 +64,41 @@ pub(super) const fn throwing_dart_set() -> Item {
         speed: 1
     })
 }
+
+/// Creates a new 'shaving razor' item
+pub(super) const fn shaving_razor() -> Item {
+    Item::Weapon(Weapon {
+        name: "Shaving Razor",
+        description: "A razor you found in the wash room. It's sharp, but it's not really a weapon.",
+
+        straight_damage: Damage::new(3),
+        dodge_damage: Damage::new(2),
+        speed: 5
+    })
+}
+
+
+/// Creates a new 'wrench' item
+pub(super) const fn wrench() -> Item {
+    Item::Weapon(Weapon {
+        name: "Wrench",
+        description: "A wrench from the engine room. It's weighty and you could do some good damage with it.",
+
+        straight_damage: Damage::new(6),
+        dodge_damage: Damage::new(4),
+        speed: 3
+    })
+}
+
+
+/// Creates a new 'eating knife' item
+pub(super) const fn eating_knife() -> Item {
+    Item::Weapon(Weapon {
+        name: "Eating knife",
+        description: "A sharp steel knife. Synthetic protein is tough, so it's sharp and sturdy",
+
+        straight_damage: Damage::new(5),
+        dodge_damage: Damage::new(5),
+        speed: 2    
+    })
+}

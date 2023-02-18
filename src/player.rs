@@ -36,6 +36,8 @@ enum PassiveAction<'a> {
     PickUpItem(usize),
     /// Carry out the [`RoomAction`][crate::rooms::RoomAction] at the given index into the [current room's actions][RoomState::actions]
     RoomAction(usize),
+    /// Read the [captain's diary][Item::CaptainsDiary]
+    ReadDiary,
 }
 
 /// Prints a screen with the details of a [`RoomTransition`] and the player's new [`Room`]
@@ -105,9 +107,16 @@ impl Player {
         }
 
         for (i, item) in self.inventory.iter().enumerate() {
-            if let Item::Food(_) = item {
-                options.push(PassiveAction::UseItem(i));
-                options_str.push(format!("Eat your {}", item.get_name()));
+            match item {
+                Item::Food(f) => {
+                    options.push(PassiveAction::UseItem(i));
+                    options_str.push(format!("Eat your {}", f.name));
+                }
+                Item::CaptainsDiary(_) => {
+                    options.push(PassiveAction::ReadDiary);
+                    options_str.push("Read the captain's diary".to_string());
+                }
+                _ => ()
             }
         }
 
@@ -141,6 +150,67 @@ impl Player {
                 if result.show_again {
                     self.get_room_state_mut().actions.insert(i, action); // Put action back if needed
                 }
+            }
+            PassiveAction::ReadDiary => {
+                let diary = self
+                    .inventory
+                    .iter_mut()
+                    .find_map(|item| if let Item::CaptainsDiary(p) = item {Some(p)} else {None})
+                    .unwrap();
+
+                let screen;
+                (screen, *diary) = match *diary {
+                    0 => (Screen {
+                        title: "You read the last page: 15/08/2168 - Found someone in the cold",
+                        content: "Found a body in the cold. Ship was all busted up so we thought we'd be holding a funeral but turns out they had a pulse. \
+They've been out for a few hours now, but still breathing. They look harmless but they're wearing an Arnithian military uniform so we're treating them like a prisoner."
+                    }, 1),
+                    
+                    1 => (Screen {
+                        title: "You start at the beginning: 01/01/2168 - Another revolution, another revelation",
+                        content: "It occurred to me during the festivities that I didn't know why a revolution was called that. Turns out it's based on roughly the time Earth took to complete one orbit of its star. \
+Early humans called it a 'year' and it was an important unit of time due to the seasonal nature of their planet."
+                    }, 2),
+
+                    2 => (Screen {
+                        title: "03/02/2168 - Big setback today, the Arnithians seem to have ultra-powerful fighter jet engines",
+                        content: "They can go from 0-60 in half a second - the engineers reckon that needs 200kN of thrust but the engines don't look much different. Can't imagine what that would do to a pilot's neck"
+                    }, 3),
+
+                    3 => (Screen {
+                        title: "17/02/2168 - More bad news about the new jets",
+                        content: "They seem to have some automated dodging capabilities. We can't hit them with anything. Their comms seems to be on all different frequencies and the patterns are all over the place - much faster than normal."
+                    }, 4),
+
+                    4 => (Screen {
+                        title: "05/04/2168 - Home is in sight",
+                        content: "The commander says I can have a few scores off after we pick up the new recruits. Sounds good to me."
+                    }, 5),
+
+                    5 => (Screen {
+                        title: "01/06/2168 - Something about the new jets seems off",
+                        content: "They're messing up all our instruments - according to my scanner, the pilot of one of them was 90 degrees! I'm really not sure what's going on - maybe they're all remote and it's to mess with our heads.\
+In any case, whatever they're doing is working. We need to step up our game before they start deploying these everywhere."
+                    }, 6),
+
+                    6 => (Screen {
+                        title: "20/06/2168 - Going home sooner than I thought",
+                        content: "The commander moved forward picking up the recruits because we need more officers on the front lines. I'll be leaving in a few cycles, but it'll only be three of us"
+                    }, 7),
+
+                    7 => (Screen {
+                        title: "10/07/2168 - Had to confiscate the darts",
+                        content: "Juuran keeps throwing them at the windows. I know they're double reinforced but from my point of view there's no point in testing that. Besides, it makes a damn annoying noise. \
+I've not hidden them but Juuran knows there'll be trouble if they take them."
+                    }, 8),
+
+                    p => (Screen {
+                        title: "There's no more pages",
+                        content: "How disappointing."
+                    }, p)
+                };
+
+                menu.show_screen(screen);
             }
         }
     }
@@ -228,7 +298,7 @@ impl Player {
                     options.push(combat::Action::AttackStraight(i));
                     options_str.push(format!("Attack with your {}", w.name));
                 }
-                Item::Maps | Item::EscapePodKeys => (),
+                _ => (),
             }
         }
 
