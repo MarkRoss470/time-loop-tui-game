@@ -78,7 +78,7 @@ impl Room {
             Self::Kitchen => "An immaculately clean kitchen area. All the appliances are electric - no open flames are allowed on the ship.",
             Self::Stairwell => "A stairwell. There's not much to do, but out the window you can see the ship's engines pushing you forward into your captors' grip.",
             
-            Self::CrewArea => "Where the soldiers relax after a long cycle. If there were any, that is. There's a darts board on the wall, but no darts anywhere.",
+            Self::CrewArea => "Where the soldiers relax after a long cycle. If there were any, that is. There's a dart board on the wall, but no darts anywhere.",
             Self::StoreRoom => "A small room with many shelves containing various things. The light is broken so you can only make out shapes close to the door.",
             Self::LowerCorridor => "A corridor connecting the crew area to the engine room.",
             Self::WashRoom => "A spotless wash room containing a few showers and a few toilets. This is a military vessel, so there's no need for privacy.",
