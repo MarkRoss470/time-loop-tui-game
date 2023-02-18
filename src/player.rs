@@ -36,7 +36,7 @@ enum PassiveAction<'a> {
     UseItem(usize),
     /// Add the [`Item`] at the given index into the [current room's inventory][RoomState::items] to the [player's inventory][Player::inventory]
     PickUpItem(usize),
-    /// Carry out the [`RoomAction`][crate::rooms::RoomAction] at the given index into the [current room's actions][RoomState::actions]
+    /// Carry out the [`RoomAction`][crate::map::RoomAction] at the given index into the [current room's actions][RoomState::actions]
     RoomAction(usize),
     /// Read the [captain's diary][Item::CaptainsDiary]
     ReadDiary,
