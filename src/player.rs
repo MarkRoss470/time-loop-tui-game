@@ -38,8 +38,6 @@ enum PassiveAction<'a> {
     PickUpItem(usize),
     /// Carry out the [`RoomAction`][crate::map::RoomAction] at the given index into the [current room's actions][RoomState::actions]
     RoomAction(usize),
-    /// Read the [captain's diary][Item::CaptainsDiary]
-    ReadDiary,
 }
 
 /// Prints a screen with the details of a [`RoomTransition`] and the player's new [`Room`]
@@ -123,7 +121,7 @@ impl Player {
                     options_str.push(format!("Eat your {}", f.name));
                 }
                 Item::CaptainsDiary(_) => {
-                    options.push(PassiveAction::ReadDiary);
+                    options.push(PassiveAction::UseItem(i));
                     options_str.push("Read the captain's diary".to_string());
                 }
                 _ => ()
@@ -164,15 +162,54 @@ impl Player {
                     self.get_room_state_mut().actions.insert(i, action); // Put action back if needed
                 }
             }
-            PassiveAction::ReadDiary => {
-                let diary = self
-                    .inventory
-                    .iter_mut()
-                    .find_map(|item| if let Item::CaptainsDiary(p) = item {Some(p)} else {None})
-                    .unwrap();
+        }
+    }
 
+    /// Prints the [`Player`]'s room and health
+    fn print_state(&self, menu: &mut impl Menu) {
+        let screen = Screen {
+            title: "You take a moment to rest and check your body for injuries",
+            content: &format!(
+                "You are in the {} - {}\nYou are at {}/{} HP\nYou have:\n{}• {} to get off the ship\n",
+                self.room.get_name(),
+                self.room.get_description(),
+                self.health,
+                self.max_health,
+                self.inventory
+                    .iter()
+                    .map(|item| format!("• {} - {}\n", item.get_name(), item.get_description()))
+                    .collect::<String>(),
+                self.get_remaining_time()
+            ),
+        };
+
+        menu.show_screen(screen);
+    }
+
+    /// Uses the [`Item`] at the given index into the [`Player`]'s inventory
+    fn use_item(&mut self, menu: &mut impl Menu, i: usize) {
+        match &mut self.inventory[i] {
+            Item::Food(f) => {
+                let prev_health = self.health;
+                self.health.heal_to_max(f.heals_for, self.max_health);
+
+                let screen = Screen {
+                    title: &format!("You ate your {}", f.name),
+                    content: &format!(
+                        "You are healed by {} HP.\nYou are now at {}/{} HP.",
+                        self.health - prev_health,
+                        self.health,
+                        self.max_health
+                    ),
+                };
+
+                menu.show_screen(screen);
+
+                self.inventory.remove(i);
+            }
+            Item::CaptainsDiary(ref mut page) => {
                 let screen;
-                (screen, *diary) = match *diary {
+                (screen, *page) = match *page {
                     0 => (Screen {
                         title: "You read the last page: 15/08/2168 - Found someone in the cold",
                         content: "Found a body in the cold. Ship was all busted up so we thought we'd be holding a funeral but turns out they had a pulse. \
@@ -224,51 +261,6 @@ I've not hidden them but Juuran knows there'll be trouble if they take them."
                 };
 
                 menu.show_screen(screen);
-            }
-        }
-    }
-
-    /// Prints the [`Player`]'s room and health
-    fn print_state(&self, menu: &mut impl Menu) {
-        let screen = Screen {
-            title: "You take a moment to rest and check your body for injuries",
-            content: &format!(
-                "You are in the {} - {}\nYou are at {}/{} HP\nYou have:\n{}• {} to get off the ship\n",
-                self.room.get_name(),
-                self.room.get_description(),
-                self.health,
-                self.max_health,
-                self.inventory
-                    .iter()
-                    .map(|item| format!("• {} - {}\n", item.get_name(), item.get_description()))
-                    .collect::<String>(),
-                self.get_remaining_time()
-            ),
-        };
-
-        menu.show_screen(screen);
-    }
-
-    /// Uses the [`Item`] at the given index into the [`Player`]'s inventory
-    fn use_item(&mut self, menu: &mut impl Menu, i: usize) {
-        match &self.inventory[i] {
-            Item::Food(f) => {
-                let prev_health = self.health;
-                self.health.heal_to_max(f.heals_for, self.max_health);
-
-                let screen = Screen {
-                    title: &format!("You ate your {}", f.name),
-                    content: &format!(
-                        "You are healed by {} HP.\nYou are now at {}/{} HP.",
-                        self.health - prev_health,
-                        self.health,
-                        self.max_health
-                    ),
-                };
-
-                menu.show_screen(screen);
-
-                self.inventory.remove(i);
             }
             _ => panic!("Only food items can be used outside of combat")
         }
