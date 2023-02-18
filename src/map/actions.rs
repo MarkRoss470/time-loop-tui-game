@@ -24,14 +24,14 @@ pub struct RoomActionResult<'a> {
 
 impl<'a> RoomActionResult<'a> {
     /// Creates a new [`RoomActionResult`] from the given optional message and whether to show the action again 
-    fn new(message: Option<Screen<'a>>, show_again: bool) -> Self {
+    const fn new(message: Option<Screen<'a>>, show_again: bool) -> Self {
         Self{ message, show_again }
     }
 }
 
 impl RoomAction {
     /// Gets the text which will be shown to the player when they are picking an action
-    pub fn get_description(&self) -> &'static str {
+    pub const fn get_description(&self) -> &'static str {
         match self {
             Self::StrategyRoomTakeMaps => "Take the drive from the computer",
             Self::EngineRoomTakeKeys => "Check out the cabinet in the corner",

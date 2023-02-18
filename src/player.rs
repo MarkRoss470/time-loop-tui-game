@@ -41,7 +41,7 @@ enum PassiveAction<'a> {
 /// Prints a screen with the details of a [`RoomTransition`] and the player's new [`Room`]
 fn print_room_transition(transition: &RoomTransition, menu: &mut impl Menu) {
     let screen = Screen {
-        title: &format!("You go to the {}", transition.prompt_text.unwrap_or(transition.to.get_name())),
+        title: &format!("You go to the {}", transition.prompt_text.unwrap_or_else(||transition.to.get_name())),
         content: &format!(
             "{}\nYou are now in the {} - {}",
             transition.message,
@@ -86,7 +86,7 @@ impl Player {
             options.push(PassiveAction::GoToRoom(connection));
             options_str.push(format!(
                 "Go to the {}",
-                connection.prompt_text.unwrap_or(connection.to.get_name())
+                connection.prompt_text.unwrap_or_else(||connection.to.get_name())
             ));
         }
 
