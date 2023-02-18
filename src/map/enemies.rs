@@ -34,7 +34,7 @@ pub(super) fn skipper() -> Enemy {
     Enemy {
         name: "Skipper",
         description: "The ship's captain. Having served in the 2143-2152 inter-system war, they have great experience in combat. On the other hand, they're very good at forgetting things.",
-        inventory: vec![],
+        inventory: vec![weapons::captains_blaster()],
 
         health: Health::new(15),
         max_health: Health::new(15),

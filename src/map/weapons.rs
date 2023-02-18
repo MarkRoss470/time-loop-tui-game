@@ -5,11 +5,23 @@ use crate::{
     items::{Item, Weapon},
 };
 
+/// Creates a new 'intruders baster' item
+pub(super) const fn intruders_blaster() -> Item {
+    Item::Weapon(Weapon {
+        name: "Intruders blaster",
+        description: "An energy weapon kept on the wall in the bridge to use if an enemy boards the ship.",
+
+        straight_damage: Damage::new(5),
+        dodge_damage: Damage::new(3),
+        speed: 3,
+    })
+}
+
 /// Creates a new 'captain's blaster' item
 pub(super) const fn captains_blaster() -> Item {
     Item::Weapon(Weapon {
         name: "Captain's blaster",
-        description: "An energy weapon which the captain keeps by his command chair in case of emergency",
+        description: "An energy weapon which the captain keeps by their side through sunshine and rain, through of course they've seen neither in a long time.",
 
         straight_damage: Damage::new(7),
         dodge_damage: Damage::new(5),

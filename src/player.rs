@@ -282,6 +282,21 @@ impl Player {
             Nothing => "You do nothing".to_string(),
         }
     }
+
+    /// Shows the player a win screen
+    pub fn show_win_screen(&self, menu: &mut impl Menu) {
+        if self.inventory.iter().any(|item|matches!(item, Item::Food(_))) {
+            menu.show_screen(Screen {
+                title: "Freedom at long last",
+                content: "Or maybe not so long - it's only been a few minutes, after all. You buckle in for the long ride and allow yourself to relax, finally. You won't get back to New Arnith for a cycle and a half, but at least you brought some food."
+            });
+        } else {
+            menu.show_screen(Screen {
+                title: "Freedom at long last",
+                content: "Or maybe not so long - it's only been a few minutes, after all. You buckle in for the long ride and allow yourself to relax, finally."
+            });
+        }
+    }
 }
 
 impl Player {

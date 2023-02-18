@@ -11,7 +11,8 @@ use std::{
 use crate::{
     items::Item,
     menu::{Menu, Screen},
-    player::Player,
+    player::Player, 
+    config::MAX_TURNS,
 };
 
 pub use health::{Damage, Health};
@@ -76,6 +77,8 @@ pub enum BattleResult {
     PlayerWin,
     /// The player lost the battle
     PlayerLoss,
+    /// The player ran out of turns
+    MaxTurnsReached,
 }
 
 /// An action which either a player or an enemy can take during a battle
@@ -181,7 +184,7 @@ pub fn battle(
 
     menu.show_screen(screen);
 
-    // Loop until either the player or the enemy reaches 0 health
+    // Loop until either the player or the enemy reaches 0 health or the player runs out of turns
     loop {
         // Get the player and enemy's actions
         let player_action = player.choose_combat_action(menu);
@@ -212,6 +215,10 @@ pub fn battle(
         }
 
         *turn_number += 1;
+
+        if *turn_number == MAX_TURNS {
+            return BattleResult::MaxTurnsReached
+        }
     }
 }
 

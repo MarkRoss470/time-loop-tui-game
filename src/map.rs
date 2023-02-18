@@ -18,7 +18,7 @@ use self::transitions::*;
 pub fn init() -> RoomGraph {
     // The bridge
     let bridge = RoomState::new(Room::Bridge, vec![BRIDGE_TO_UPPER_CORRIDOR])
-        .add_item(weapons::captains_blaster());
+        .add_item(weapons::intruders_blaster());
 
     // The upper corridor
     let upper_corridor = RoomState::new(
