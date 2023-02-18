@@ -59,10 +59,14 @@ impl<'a> TextLayout<'a> {
             }
 
             // The remaining width on the current line
-            let width_left = self.max_width - (x - 1);
+            let width_left = if is_line_start {
+                self.max_width - x
+            } else {
+                self.max_width - (x - 1)
+            };
 
             // Whether a hyphen is needed to print the word - if the word is longer than the line width
-            let needs_hyphen = width > width_left * 2;
+            let needs_hyphen = width > self.max_width;
 
             // If the size of the upper segment would be big enough
             let first_segment_long_enough = width_left >= TEXT_WRAPPING_MIN_SEGMENT_SIZE;
@@ -97,8 +101,10 @@ impl<'a> TextLayout<'a> {
                     is_line_start = true;
 
                     word_start_index = current_render_line_end;
-                } else {
+                } else if !is_line_start {
                     word_start_index = current_render_line_end + 1;
+                } else {
+                    word_start_index = current_render_line_end;
                 }
 
                 // Loop through the graphemes
