@@ -22,6 +22,8 @@
 //! menu.show_screen(screen);
 //! ```
 
+pub mod tests;
+
 /// The list of options for a user to choose from
 pub struct OptionList<'a> {
     /// A list of options for the player to choose from
@@ -43,7 +45,7 @@ impl<'a> OptionList<'a> {
 }
 
 /// A screen of text that can be shown to the user
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Screen<'a> {
     /// The title of the screen
     pub title: &'a str,

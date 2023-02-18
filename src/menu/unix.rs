@@ -21,6 +21,9 @@ mod text_layout;
 use consts::*;
 use text_layout::*;
 
+
+mod tests;
+
 /// The ANSI escape to move the cursor 1 line up
 const ANSI_UP: &str = "\x1b[A";
 /// The ANSI escape to move the cursor 1 line down

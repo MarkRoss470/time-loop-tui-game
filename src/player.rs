@@ -1,5 +1,7 @@
 //! Functionality related to the [`Player`]'s state and actions
 
+mod tests;
+
 use crate::combat::{self, Health};
 use crate::config::{self, STARTING_ROOM};
 use crate::items::Item;
