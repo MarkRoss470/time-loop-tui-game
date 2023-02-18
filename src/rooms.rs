@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::{combat::Enemy, items::Item};
+use crate::{combat::Enemy, items::Item, map::RoomAction};
 
 /// One of the game's rooms.
 /// This does not store the room's state, and is only an identifier.
@@ -37,8 +37,8 @@ pub enum Room {
     /// The engine room
     EngineRoom,
 
-    /// The escape craft
-    EscapeCraft,
+    /// The escape pod
+    EscapePod,
     /// The room which triggers winning the game
     Escape,
 }
@@ -62,7 +62,7 @@ impl Room {
             Self::Bunks => "Bunks",
             Self::EngineRoom => "Engine Room",
 
-            Self::EscapeCraft => "Escape Craft",
+            Self::EscapePod => "Escape Pod",
             Self::Escape => "",
         }
     }
@@ -85,7 +85,7 @@ impl Room {
             Self::Bunks => "The soldiers will sleep here when they are on board",
             Self::EngineRoom => "Where the ship's internals are serviced from. The actual engines are at the back of the ship, but this is where the boiler and the electrical breakers are.",
 
-            Self::EscapeCraft => "A pod big enough for only two people. It has enough fuel to get you to safety, but only just.",
+            Self::EscapePod => "A pod big enough for only two people. It has enough fuel to get you to safety, but only just.",
             Self::Escape => "",
         }
     }
@@ -102,7 +102,15 @@ pub struct RoomTransition {
     pub prompt_text: Option<&'static str>,
 }
 
-/// The state of a room
+/// The state of a room. 
+/// [`RoomState`]s can be constructed with [`new`][Self::new] and properties can be added using 
+/// [`add_item`][Self::add_item], [`add_action`][Self::add_action], and [`with_enemy`][Self::with_enemy]
+/// ```
+/// let room_state = RoomState::new(Room::Bridge, vec![...])
+///     .add_item(...)
+///     .add_action(...)
+///     .with_enemy(...);
+/// ```
 #[derive(Debug)]
 pub struct RoomState {
     /// Which room this is the state of
@@ -113,6 +121,47 @@ pub struct RoomState {
     pub enemy: Option<Enemy>,
     /// Which other rooms the player can go to from this one
     pub connections: Vec<RoomTransition>,
+    /// Which actions can be performed in this room
+    pub actions: Vec<RoomAction>
+}
+
+impl RoomState {
+    /// Creates a new [`RoomState`] from a provided [`Room`] and connections.
+    /// [`items`][Self::items] and [`actions`][Self::actions] are set to empty [`Vec`]s and [`enemy`][Self::enemy] is set to [`None`]
+    pub fn new(room: Room, connections: Vec<RoomTransition>) -> Self {
+        Self {
+            room,
+            items: Vec::new(),
+            enemy: None,
+            connections,
+            actions: Vec::new(),
+        }
+    }
+
+    /// Takes a [`RoomState`] by value and returns a new one with the given [`Item`] added to [`items`][Self::items].
+    /// See [`RoomState`] docs for usage.
+    pub fn add_item(mut self, item: Item) -> Self {
+        self.items.push(item);
+        self
+    }
+
+    /// Takes a [`RoomState`] by value and returns a new one with the given [`RoomAction`] added to [`actions`][Self::actions].
+    /// See [`RoomState`] docs for usage.
+    pub fn add_action(mut self, action: RoomAction) -> Self {
+        self.actions.push(action);
+        self
+    }
+
+    /// Takes a [`RoomState`] by value and returns a new one with [`enemy`][Self::enemy] set to the given [`Enemy`].
+    /// See [`RoomState`] docs for usage.
+    /// 
+    /// ### Panics
+    /// * If [`enemy`][Self::enemy] is already [`Some`], most likely if this method was called twice
+    pub fn with_enemy(mut self, enemy: Enemy) -> Self {
+        assert!(self.enemy.is_none());
+        self.enemy = Some(enemy);
+        self
+    }
 }
 
 /// The state of all rooms

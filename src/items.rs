@@ -36,6 +36,10 @@ pub enum Item {
     Food(Food),
     /// A weapon
     Weapon(Weapon),
+    /// The maps which are needed to fly the escape pod
+    Maps,
+    /// The keys to the escape pod
+    EscapePodKeys,
 }
 
 impl Item {
@@ -44,6 +48,8 @@ impl Item {
         match self {
             Self::Food(f) => f.name,
             Self::Weapon(w) => w.name,
+            Self::Maps => "Galactic Maps 2168 Edition",
+            Self::EscapePodKeys => "Escape Pod Keys"
         }
     }
 
@@ -52,6 +58,8 @@ impl Item {
         match self {
             Self::Food(f) => f.description,
             Self::Weapon(w) => w.description,
+            Self::Maps => "A map of the galaxy in the format which spacecraft use to plot routes",
+            Self::EscapePodKeys => "A key card labelled 'escape pod'. The label is beginning to wear.",
         }
     }
 }

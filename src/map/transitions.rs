@@ -50,3 +50,13 @@ room_transition!(BUNKS_TO_LOWER_CORRIDOR, Bunks, LowerCorridor, "You leave the b
 room_transition!(WASH_ROOM_TO_LOWER_CORRIDOR, WashRoom, LowerCorridor, "You leave the wash room and now the rest of the ship looks positively grubby in comparison.");
 
 room_transition!(ENGINE_ROOM_TO_LOWER_CORRIDOR, EngineRoom, LowerCorridor, "You leave the engine room and it becomes even more apparent to you just how soulless the ship is.");
+
+room_transition!(ESCAPE_POD_TO_CREW_AREA, EscapePod, CrewArea, "You get up from your seat. You'd love to leave, but you can't yet.");
+
+/// The room transition from the crew area to the escape pod
+/// This room transition is special because it will change when the user gets the key
+pub(super) const CREW_AREA_TO_ESCAPE_POD: RoomTransition = RoomTransition {
+    message: "You walk up to the door expecting it to slide up when you get close like all the rest, but it doesn't open.",
+    to: Room::CrewArea, // The door is locked, so keep the player in the crew area
+    prompt_text: Some("Escape Pod"), 
+};

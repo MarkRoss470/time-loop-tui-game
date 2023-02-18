@@ -43,6 +43,7 @@ impl<'a> OptionList<'a> {
 }
 
 /// A screen of text that can be shown to the user
+#[derive(Debug)]
 pub struct Screen<'a> {
     /// The title of the screen
     pub title: &'a str,

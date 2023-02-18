@@ -11,7 +11,7 @@ use crate::rooms::{Room, RoomGraph, RoomState, RoomTransition};
 #[derive(Debug)]
 pub struct Player {
     /// Which [`Room`] the [`Player`] is in
-    room: Room,
+    pub room: Room,
     /// The [`Player`]'s inventory
     pub inventory: Vec<Item>,
     /// The [`Player`]'s current health
@@ -20,7 +20,7 @@ pub struct Player {
     pub max_health: Health,
 
     /// The current state of the rooms
-    room_graph: RoomGraph,
+    pub room_graph: RoomGraph,
 }
 
 /// An action the [`Player`] can take outside of a battle
@@ -34,12 +34,14 @@ enum PassiveAction<'a> {
     UseItem(usize),
     /// Add the [`Item`] at the given index into the [current room's inventory][RoomState::items] to the [player's inventory][Player::inventory]
     PickUpItem(usize),
+    /// Carry out the [`RoomAction`][crate::rooms::RoomAction] at the given index into the [current room's actions][RoomState::actions]
+    RoomAction(usize),
 }
 
 /// Prints a screen with the details of a [`RoomTransition`] and the player's new [`Room`]
 fn print_room_transition(transition: &RoomTransition, menu: &mut impl Menu) {
     let screen = Screen {
-        title: &format!("You go to the {}", transition.to.get_name()),
+        title: &format!("You go to the {}", transition.prompt_text.unwrap_or(transition.to.get_name())),
         content: &format!(
             "{}\nYou are now in the {} - {}",
             transition.message,
@@ -97,6 +99,11 @@ impl Player {
             ));
         }
 
+        for (i, action) in room_state.actions.iter().enumerate() {
+            options.push(PassiveAction::RoomAction(i));
+            options_str.push(action.get_description().to_string());
+        }
+
         for (i, item) in self.inventory.iter().enumerate() {
             if let Item::Food(_) = item {
                 options.push(PassiveAction::UseItem(i));
@@ -123,6 +130,18 @@ impl Player {
             }
             PassiveAction::UseItem(i) => self.use_item(menu, i),
             PassiveAction::PickUpItem(i) => self.pick_up_item_from_room(i),
+            PassiveAction::RoomAction(i) => {
+                let action = self.get_room_state_mut().actions.remove(i); // Take action out of vec to avoid multiple mutable references
+                let result = action.execute(self);
+
+                if let Some(message) = result.message {
+                    menu.show_screen(message);
+                }
+
+                if result.show_again {
+                    self.get_room_state_mut().actions.insert(i, action); // Put action back if needed
+                }
+            }
         }
     }
 
@@ -131,11 +150,15 @@ impl Player {
         let screen = Screen {
             title: "You take a moment to rest and check your body for injuries",
             content: &format!(
-                "You are in the {} - {}\nYou are at {}/{} HP",
+                "You are in the {} - {}\nYou are at {}/{} HP\nYou have:\n{}",
                 self.room.get_name(),
                 self.room.get_description(),
                 self.health,
-                self.max_health
+                self.max_health,
+                self.inventory
+                    .iter()
+                    .map(|item| format!("• {} - {}\n", item.get_name(), item.get_description()))
+                    .collect::<String>()
             ),
         };
 
@@ -163,9 +186,7 @@ impl Player {
 
                 self.inventory.remove(i);
             }
-            Item::Weapon(_) => {
-                panic!("Weapons cannot be used outside of combat")
-            }
+            _ => panic!("Only food items can be used outside of combat")
         }
     }
 
@@ -207,6 +228,7 @@ impl Player {
                     options.push(combat::Action::AttackStraight(i));
                     options_str.push(format!("Attack with your {}", w.name));
                 }
+                Item::Maps | Item::EscapePodKeys => (),
             }
         }
 

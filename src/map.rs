@@ -2,10 +2,13 @@
 
 use std::collections::HashMap;
 
+mod actions;
 mod enemies;
 mod food;
 mod transitions;
 mod weapons;
+
+pub use actions::RoomAction;
 
 use crate::rooms::{Room, RoomGraph, RoomState};
 
@@ -13,97 +16,91 @@ use self::transitions::*;
 
 /// Initialise a new [`RoomGraph`]
 pub fn init() -> RoomGraph {
-    let bridge = RoomState {
-        room: Room::Bridge,
-        items: vec![weapons::captains_blaster()],
-        enemy: None,
-        connections: vec![BRIDGE_TO_UPPER_CORRIDOR],
-    };
+    // The bridge
+    let bridge = RoomState::new(Room::Bridge, vec![BRIDGE_TO_UPPER_CORRIDOR])
+        .add_item(weapons::captains_blaster());
 
-    let upper_corridor = RoomState {
-        room: Room::UpperCorridor,
-        items: vec![],
-        enemy: None,
-        connections: vec![UPPER_CORRIDOR_TO_BRIDGE, UPPER_CORRIDOR_TO_STRATEGY_ROOM, UPPER_CORRIDOR_TO_CELLS, UPPER_CORRIDOR_TO_MESS_HALL],
-    };
+    // The upper corridor
+    let upper_corridor = RoomState::new(
+        Room::UpperCorridor,
+        vec![
+            UPPER_CORRIDOR_TO_BRIDGE,
+            UPPER_CORRIDOR_TO_STRATEGY_ROOM,
+            UPPER_CORRIDOR_TO_CELLS,
+            UPPER_CORRIDOR_TO_MESS_HALL,
+        ],
+    );
 
-    let strategy_room = RoomState {
-        room: Room::StrategyRoom,
-        items: vec![],
-        enemy: Some(enemies::skipper()),
-        connections: vec![STRATEGY_ROOM_TO_UPPER_CORRIDOR],
-    };
+    // The strategy room
+    let strategy_room = RoomState::new(Room::StrategyRoom, vec![STRATEGY_ROOM_TO_UPPER_CORRIDOR])
+        .with_enemy(enemies::skipper())
+        .add_action(RoomAction::StrategyRoomTakeMaps);
 
-    let cells = RoomState {
-        room: Room::Cells,
-        items: vec![],
-        enemy: None,
-        connections: vec![CELLS_TO_UPPER_CORRIDOR],
-    };
+    // The cells
+    let cells = RoomState::new(Room::Cells, vec![CELLS_TO_UPPER_CORRIDOR]);
 
-    let mess_hall = RoomState {
-        room: Room::MessHall,
-        items: vec![],
-        enemy: Some(enemies::cook()),
-        connections: vec![MESS_HALL_TO_UPPER_CORRIDOR, MESS_HALL_TO_KITCHEN, MESS_HALL_TO_STAIRWELL]
-    };
+    // The mess hall
+    let mess_hall = RoomState::new(
+        Room::MessHall,
+        vec![
+            MESS_HALL_TO_UPPER_CORRIDOR,
+            MESS_HALL_TO_KITCHEN,
+            MESS_HALL_TO_STAIRWELL,
+        ],
+    )
+    .with_enemy(enemies::cook());
 
-    let kitchen = RoomState {
-        room: Room::Kitchen,
-        items: vec![food::bread_roll()],
-        enemy: None,
-        connections: vec![KITCHEN_TO_MESS_HALL],
-    };
+    // The kitchen
+    let kitchen =
+        RoomState::new(Room::Kitchen, vec![KITCHEN_TO_MESS_HALL]).add_item(food::bread_roll());
 
-    let stairwell = RoomState {
-        room: Room::Stairwell,
-        items: vec![],
-        enemy: None,
-        connections: vec![STAIRWELL_TO_MESS_HALL, STAIRWELL_TO_CREW_AREA],
-    };
+    // The stairwell
+    let stairwell = RoomState::new(
+        Room::Stairwell,
+        vec![STAIRWELL_TO_MESS_HALL, STAIRWELL_TO_CREW_AREA],
+    );
 
-    let crew_area = RoomState {
-        room: Room::CrewArea,
-        items: vec![],
-        enemy: None,
-        connections: vec![CREW_AREA_TO_STAIRWELL, CREW_AREA_TO_STORE_ROOM, CREW_AREA_TO_LOWER_CORRIDOR],
-    };
+    // The crew area
+    let crew_area = RoomState::new(
+        Room::CrewArea,
+        vec![
+            CREW_AREA_TO_STAIRWELL,
+            CREW_AREA_TO_STORE_ROOM,
+            CREW_AREA_TO_ESCAPE_POD,
+            CREW_AREA_TO_LOWER_CORRIDOR,
+        ],
+    );
 
-    let store_room = RoomState {
-        room: Room::StoreRoom,
-        items: vec![],
-        enemy: None,
-        connections: vec![STORE_ROOM_TO_CREW_AREA],
-    };
+    // The store room
+    let store_room = RoomState::new(Room::StoreRoom, vec![STORE_ROOM_TO_CREW_AREA]);
 
-    let lower_corridor = RoomState {
-        room: Room::LowerCorridor,
-        items: vec![],
-        enemy: None,
-        connections: vec![LOWER_CORRIDOR_TO_CREW_AREA, LOWER_CORRIDOR_TO_BUNKS, LOWER_CORRIDOR_TO_WASH_ROOM, LOWER_CORRIDOR_TO_ENGINE_ROOM],
-    };
+    // The lower corridor
+    let lower_corridor = RoomState::new(
+        Room::LowerCorridor,
+        vec![
+            LOWER_CORRIDOR_TO_CREW_AREA,
+            LOWER_CORRIDOR_TO_BUNKS,
+            LOWER_CORRIDOR_TO_WASH_ROOM,
+            LOWER_CORRIDOR_TO_ENGINE_ROOM,
+        ],
+    );
 
-    let bunks = RoomState {
-        room: Room::Bunks,
-        items: vec![weapons::throwing_dart_set()],
-        enemy: None,
-        connections: vec![BUNKS_TO_LOWER_CORRIDOR],
-    };
+    // The bunks
+    let bunks = RoomState::new(Room::Bunks, vec![BUNKS_TO_LOWER_CORRIDOR])
+        .add_item(weapons::throwing_dart_set());
 
-    let wash_room = RoomState {
-        room: Room::WashRoom,
-        items: vec![],
-        enemy: None,
-        connections: vec![WASH_ROOM_TO_LOWER_CORRIDOR],
-    };
+    // The wash room
+    let wash_room = RoomState::new(Room::WashRoom, vec![WASH_ROOM_TO_LOWER_CORRIDOR]);
 
-    let engine_room = RoomState {
-        room: Room::EngineRoom,
-        items: vec![],
-        enemy: Some(enemies::mechanic()),
-        connections: vec![ENGINE_ROOM_TO_LOWER_CORRIDOR],
-    };
+    // The engine room
+    let engine_room = RoomState::new(Room::EngineRoom, vec![ENGINE_ROOM_TO_LOWER_CORRIDOR])
+        .with_enemy(enemies::mechanic())
+        .add_action(RoomAction::EngineRoomTakeKeys);
 
+    let escape_pod = RoomState::new(Room::EscapePod, vec![ESCAPE_POD_TO_CREW_AREA])
+        .add_action(RoomAction::EscapePodTakeOff);
+
+    // Construct a room graph from all the rooms
     RoomGraph {
         rooms: HashMap::from([
             (Room::Bridge, bridge),
@@ -119,6 +116,7 @@ pub fn init() -> RoomGraph {
             (Room::Bunks, bunks),
             (Room::WashRoom, wash_room),
             (Room::EngineRoom, engine_room),
+            (Room::EscapePod, escape_pod),
         ]),
     }
 }

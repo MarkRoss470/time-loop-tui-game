@@ -50,7 +50,7 @@ fn main() {
 
             player.take_passive_action(menu);
 
-            if matches!(player.get_room_state().room, Room::Escape) {
+            if matches!(player.room, Room::Escape) {
                 // TODO: print 'you win'
                 break 'time_loop;
             }
