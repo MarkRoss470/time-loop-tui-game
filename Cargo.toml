@@ -1,6 +1,6 @@
 [package]
 name = "rust-text-game"
-version = "1.0..0"
+version = "1.0.0"
 edition = "2021"
 
 [target.'cfg(unix)'.dependencies]
