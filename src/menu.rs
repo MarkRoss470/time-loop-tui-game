@@ -61,6 +61,8 @@ pub enum Error {
     Io(std::io::Error),
     /// A character was encountered which is not supported
     IncompatibleCharacter,
+    /// The user asked to quit
+    Quit,
 }
 
 impl std::fmt::Display for Error {
@@ -68,6 +70,7 @@ impl std::fmt::Display for Error {
         match self {
             Self::Io(e) => write!(f, "{e}"),
             Self::IncompatibleCharacter => write!(f, "an incompatible character was encountered"),
+            Self::Quit => write!(f, "The user quit the program"),
         }
     }
 }

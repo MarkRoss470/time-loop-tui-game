@@ -196,11 +196,16 @@ impl Menu for Tui {
 
             self.render_text_centred(screen.title, TOP_OFFSET)?;
 
-            if poll_stdin(&mut stdin)?.is_some() {
+            if let Some(char) = poll_stdin(&mut stdin)? {
                 // If the scroll has finished, break
                 if render_all_graphemes {
                     break;
                 }
+
+                if char == "q" {
+                    return Err(Error::Quit);
+                }
+
                 // Otherwise, skip the rest of the scroll
                 render_all_graphemes = true;
             }
