@@ -10,7 +10,7 @@ Make sure you have cargo installed. Clone the repo and run `cargo run`. Use `--r
 
 ## Other - from stock
 
-Go to [this online linux virtualiser](https://copy.sh/v86/?profile=archlinux) and upload the binary from the latest release. Run the following commands to run the binary:
+Go to [this online linux virtualiser](https://copy.sh/v86/?profile=archlinux) and upload the binary from the latest release. Run the following commands to run the binary (the emulator doesn't support paste, so type each line until the #):
 
 ```sh
 chmod +x /rust-text-game # This makes the file executable, so you can run it as a program
