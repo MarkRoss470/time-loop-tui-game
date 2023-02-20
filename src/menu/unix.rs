@@ -10,6 +10,9 @@ use termion::raw::{IntoRawMode, RawTerminal};
 use termion::screen::{AlternateScreen, IntoAlternateScreen};
 use termion::{cursor, terminal_size};
 
+#[cfg(feature = "no-flicker")]
+use termion::clear;
+
 use unicode_segmentation::UnicodeSegmentation;
 
 use super::{Error, Menu, OptionList};
@@ -120,6 +123,9 @@ impl Menu for Tui {
     }
 
     fn try_show_option_list(&mut self, list: OptionList<'_>) -> Result<usize, Error> {
+        #[cfg(feature = "no-flicker")]
+        write!(self.stdout, "{}", clear::All)?;
+
         // Get options from list with numbers
         let items: Vec<_> = list.options.iter().map(String::as_str).collect();
 
@@ -131,6 +137,9 @@ impl Menu for Tui {
         &mut self,
         list: OptionList,
     ) -> Result<Option<usize>, Error> {
+        #[cfg(feature = "no-flicker")]
+        write!(self.stdout, "{}", clear::All)?;
+
         // Get options from list, including cancel option
         let items: Vec<_> = list
             .options
@@ -151,6 +160,9 @@ impl Menu for Tui {
     }
 
     fn try_show_screen(&mut self, screen: super::Screen) -> Result<(), Error> {
+        #[cfg(feature = "no-flicker")]
+        write!(self.stdout, "{}", clear::All)?;
+
         // Lock stdin
         let mut stdin = std::io::stdin().lock();
         // A cache for the layout so that it doesn't need to be regenerated every frame

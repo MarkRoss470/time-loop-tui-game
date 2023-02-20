@@ -8,3 +8,6 @@ termion = "*" # For controlling the terminal
 unicode-segmentation = "*" # For splitting text into graphemes
 unicode-width = "*" # For getting the width of characters
 nix = "*" # For the unix select syscall
+
+[features]
+no-flicker = [] # Doesn't clear the terminal after each frame. Reduces flicker but may lead to rendering bugs.

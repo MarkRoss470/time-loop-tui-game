@@ -140,6 +140,7 @@ impl Tui {
         let (w, h) = get_size_checked()?;
 
         // Clear screen
+        #[cfg(not(feature = "no-flicker"))]
         write!(self.stdout, "{}", clear::All)?;
 
         // Go to top left corner
